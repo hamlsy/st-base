@@ -14,7 +14,8 @@ AI는 코드 작업 전에 아래 문서를 순서대로 읽습니다.
 1. docs/STBASE_MULTI_APP_BOND_SIMULATOR_PLAN.md
 2. ai-harness/PROJECT_SKILL.md
 3. ai-harness/DOMAIN_STRUCTURE_GUIDE.md
-4. ai-harness/AI_IMPLEMENTATION_CHECKLIST.md
+4. ai-harness/PROMPTING_GUIDE.md
+5. ai-harness/AI_IMPLEMENTATION_CHECKLIST.md
 ```
 
 기존 개요 문서도 참고할 수 있습니다.
@@ -189,3 +190,18 @@ PowerBase가 ledger를 finalize 한다.
 ```
 
 이 시나리오가 통과하기 전까지 주식, 선물, RP, ATS/SOR 구현을 시작하지 않습니다.
+
+---
+
+## 9. Prompting Rule
+
+AI에게 작업을 맡길 때는 [PROMPTING_GUIDE.md](PROMPTING_GUIDE.md)의 템플릿을 사용합니다.
+
+핵심 원칙:
+
+```text
+AI는 구조와 반복 코드를 만든다.
+문서는 정답 코드를 제공한다.
+사람은 핵심 usecase/service를 직접 따라 치며 익힌다.
+AI는 execute 내부 업무 로직을 임의로 창작하지 않는다.
+```
