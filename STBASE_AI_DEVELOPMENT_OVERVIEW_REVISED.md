@@ -1,7 +1,7 @@
-# STBase AI Development Overview
+﻿# STBase AI Development Overview
 
-> 이 문서는 AI 개발 도구가 STBase 프로젝트를 구현할 때 반드시 따라야 하는 개발 지시서입니다.  
-> STBase는 단순 주문 API 프로젝트가 아니라, PowerBase 구조를 모티브로 한 **모의 증권업무계 + 모의 자본시장 인프라**입니다.
+> ??臾몄꽌??AI 媛쒕컻 ?꾧뎄媛 STBase ?꾨줈?앺듃瑜?援ы쁽????諛섎뱶???곕씪???섎뒗 媛쒕컻 吏?쒖꽌?낅땲??  
+> STBase???⑥닚 二쇰Ц API ?꾨줈?앺듃媛 ?꾨땲?? PowerBase 援ъ“瑜?紐⑦떚釉뚮줈 ??**紐⑥쓽 利앷텒?낅Т怨?+ 紐⑥쓽 ?먮낯?쒖옣 ?명봽??*?낅땲??
 
 ---
 
@@ -14,7 +14,7 @@ Main Stack: Java, Spring Boot, JPA, MySQL, Gradle Multi Module
 Domain: Securities operations simulation
 ```
 
-STBase는 다음을 구현합니다.
+STBase???ㅼ쓬??援ы쁽?⑸땲??
 
 ```text
 PowerBase-Sim
@@ -28,72 +28,72 @@ FSS-Sim
 MarketInfo/BondInfo-Sim
 ```
 
-STBase는 다음을 구현하지 않습니다.
+STBase???ㅼ쓬??援ы쁽?섏? ?딆뒿?덈떎.
 
 ```text
-실제 거래소 주문
-실제 증권사 API 연동
-실제 예탁결제원 전문
-실제 금감원 보고
-실제 금융투자협회 보고
-실제 고객 자산 처리
-실제 투자/매매 실행
+?ㅼ젣 嫄곕옒??二쇰Ц
+?ㅼ젣 利앷텒??API ?곕룞
+?ㅼ젣 ?덊긽寃곗젣???꾨Ц
+?ㅼ젣 湲덇컧??蹂닿퀬
+?ㅼ젣 湲덉쑖?ъ옄?묓쉶 蹂닿퀬
+?ㅼ젣 怨좉컼 ?먯궛 泥섎━
+?ㅼ젣 ?ъ옄/留ㅻℓ ?ㅽ뻾
 ```
 
 ---
 
 ## 2. Absolute Safety Rules
 
-AI는 아래 규칙을 절대 위반하면 안 됩니다.
+AI???꾨옒 洹쒖튃???덈? ?꾨컲?섎㈃ ???⑸땲??
 
 ```text
-1. 실제 금융기관 API 연동 코드를 만들지 않는다.
-2. 실제 주문 가능성을 암시하는 broker adapter를 만들지 않는다.
-3. 실제 API key, secret, certificate, account 연동 구조를 만들지 않는다.
-4. 모든 기관 모듈은 내부 simulation module로만 둔다.
-5. 실거래 가능 코드와 모의거래 코드를 섞지 않는다.
-6. 원장 posting을 수정/삭제하는 API를 만들지 않는다.
-7. balance를 직접 update하는 비즈니스 코드를 만들지 않는다.
-8. 중복 요청이 중복 주문/체결/원장반영으로 이어지면 안 된다.
-9. 외부기관 시뮬레이션 호출은 반드시 로그와 재처리 구조를 갖는다.
-10. 정합성보다 편의성을 우선하지 않는다.
+1. ?ㅼ젣 湲덉쑖湲곌? API ?곕룞 肄붾뱶瑜?留뚮뱾吏 ?딅뒗??
+2. ?ㅼ젣 二쇰Ц 媛?μ꽦???붿떆?섎뒗 broker adapter瑜?留뚮뱾吏 ?딅뒗??
+3. ?ㅼ젣 API key, secret, certificate, account ?곕룞 援ъ“瑜?留뚮뱾吏 ?딅뒗??
+4. 紐⑤뱺 湲곌? 紐⑤뱢? ?대? simulation module濡쒕쭔 ?붾떎.
+5. ?ㅺ굅??媛??肄붾뱶? 紐⑥쓽嫄곕옒 肄붾뱶瑜??욎? ?딅뒗??
+6. ?먯옣 posting???섏젙/??젣?섎뒗 API瑜?留뚮뱾吏 ?딅뒗??
+7. balance瑜?吏곸젒 update?섎뒗 鍮꾩쫰?덉뒪 肄붾뱶瑜?留뚮뱾吏 ?딅뒗??
+8. 以묐났 ?붿껌??以묐났 二쇰Ц/泥닿껐/?먯옣諛섏쁺?쇰줈 ?댁뼱吏硫????쒕떎.
+9. ?몃?湲곌? ?쒕??덉씠???몄텧? 諛섎뱶??濡쒓렇? ?ъ쿂由?援ъ“瑜?媛뽯뒗??
+10. ?뺥빀?깅낫???몄쓽?깆쓣 ?곗꽑?섏? ?딅뒗??
 ```
 
 ---
 
 ## 3. Correct Mental Model
 
-STBase의 중심은 “주문”이 아니라 “증권사 업무계 원장”입니다.
+STBase??以묒떖? ?쒖＜臾멤앹씠 ?꾨땲???쒖쬆沅뚯궗 ?낅Т怨??먯옣?앹엯?덈떎.
 
-정확한 업무 흐름:
+?뺥솗???낅Т ?먮쫫:
 
 ```text
-채널/프론트
-→ 주문 또는 거래 입력
-→ PowerBase-Sim 검증
-→ 주문 라우팅 또는 장외거래 확정
-→ StockNet-Sim 전문 전달
-→ EXTURE-Sim 체결
-→ Clearing
-→ KSD-Sim 결제
-→ PowerBase-Sim 원장 반영
-→ KOFIA/FSS 보고
-→ 대사
-→ 감사
+梨꾨꼸/?꾨줎??
+??二쇰Ц ?먮뒗 嫄곕옒 ?낅젰
+??PowerBase-Sim 寃利?
+??二쇰Ц ?쇱슦???먮뒗 ?μ쇅嫄곕옒 ?뺤젙
+??StockNet-Sim ?꾨Ц ?꾨떖
+??EXTURE-Sim 泥닿껐
+??Clearing
+??KSD-Sim 寃곗젣
+??PowerBase-Sim ?먯옣 諛섏쁺
+??KOFIA/FSS 蹂닿퀬
+?????
+??媛먯궗
 ```
 
-AI는 모든 기능을 구현할 때 아래 질문을 먼저 해야 합니다.
+AI??紐⑤뱺 湲곕뒫??援ы쁽?????꾨옒 吏덈Ц??癒쇱? ?댁빞 ?⑸땲??
 
 ```text
-이 기능은 어떤 거래주체에 대한 것인가?
-장내거래인가 장외거래인가?
-주문 기반인가 거래입력 기반인가?
-PowerBase 원장에 어떤 영향을 주는가?
-KSD-Sim 총량과 대사 가능한가?
-KOFIA/FSS 보고 대상인가?
-중복 요청에 안전한가?
-실패 시 재처리 가능한가?
-감사 로그가 남는가?
+??湲곕뒫? ?대뼡 嫄곕옒二쇱껜?????寃껋씤媛?
+?λ궡嫄곕옒?멸? ?μ쇅嫄곕옒?멸??
+二쇰Ц 湲곕컲?멸? 嫄곕옒?낅젰 湲곕컲?멸??
+PowerBase ?먯옣???대뼡 ?곹뼢??二쇰뒗媛?
+KSD-Sim 珥앸웾怨????媛?ν븳媛?
+KOFIA/FSS 蹂닿퀬 ??곸씤媛?
+以묐났 ?붿껌???덉쟾?쒓??
+?ㅽ뙣 ???ъ쿂由?媛?ν븳媛?
+媛먯궗 濡쒓렇媛 ?⑤뒗媛?
 ```
 
 ---
@@ -104,7 +104,7 @@ KOFIA/FSS 보고 대상인가?
 
 ## 4.1 stbase-common
 
-공통 타입을 둡니다.
+怨듯넻 ??낆쓣 ?〓땲??
 
 ```text
 Money
@@ -119,48 +119,48 @@ DomainEvent
 ErrorCode
 ```
 
-규칙:
+洹쒖튃:
 
 ```text
-Money/Rate/Price에는 double/float 금지
-BigDecimal 사용
-도메인 타입은 명시적으로 만든다
+Money/Rate/Price?먮뒗 double/float 湲덉?
+BigDecimal ?ъ슜
+?꾨찓????낆? 紐낆떆?곸쑝濡?留뚮뱺??
 ```
 
 ---
 
-## 4.2 stbase-powerbase-core
+## 4.2 stbase-core
 
-증권사 업무계 중심 모듈입니다.
+利앷텒???낅Т怨?以묒떖 紐⑤뱢?낅땲??
 
 Responsibilities:
 
 ```text
-고객 원장 중심 업무흐름 조정
-계좌 상태 검증
-거래 가능 여부 검증
-주문 결과 반영
-거래 결과 반영
-결제 예정 생성
-결제 결과 반영
-보고 이벤트 생성
-대사 이벤트 생성
+怨좉컼 ?먯옣 以묒떖 ?낅Т?먮쫫 議곗젙
+怨꾩쥖 ?곹깭 寃利?
+嫄곕옒 媛???щ? 寃利?
+二쇰Ц 寃곌낵 諛섏쁺
+嫄곕옒 寃곌낵 諛섏쁺
+寃곗젣 ?덉젙 ?앹꽦
+寃곗젣 寃곌낵 諛섏쁺
+蹂닿퀬 ?대깽???앹꽦
+????대깽???앹꽦
 ```
 
 Anti-responsibilities:
 
 ```text
-호가장 관리 금지
-매칭 엔진 구현 금지
-KSD 잔고 직접 조작 금지
-KOFIA/FSS 데이터 직접 수정 금지
+?멸???愿由?湲덉?
+留ㅼ묶 ?붿쭊 援ы쁽 湲덉?
+KSD ?붽퀬 吏곸젒 議곗옉 湲덉?
+KOFIA/FSS ?곗씠??吏곸젒 ?섏젙 湲덉?
 ```
 
 ---
 
 ## 4.3 stbase-member
 
-거래주체 관리.
+嫄곕옒二쇱껜 愿由?
 
 Entities:
 
@@ -189,15 +189,15 @@ REGULATOR_SIM
 Rules:
 
 ```text
-개인/기관/증권사/HOUSE 계정은 반드시 구분한다.
-거래주체 유형에 따라 허용 거래가 달라진다.
+媛쒖씤/湲곌?/利앷텒??HOUSE 怨꾩젙? 諛섎뱶??援щ텇?쒕떎.
+嫄곕옒二쇱껜 ?좏삎???곕씪 ?덉슜 嫄곕옒媛 ?щ씪吏꾨떎.
 ```
 
 ---
 
 ## 4.4 stbase-account
 
-계좌 관리.
+怨꾩쥖 愿由?
 
 Entities:
 
@@ -221,17 +221,17 @@ MARGIN
 Rules:
 
 ```text
-정지 계좌는 신규 주문 불가
-폐쇄 계좌는 신규 posting 불가
-위탁계좌와 자기계정은 분리
-KSD 계좌와 PowerBase 고객계좌는 별도
+?뺤? 怨꾩쥖???좉퇋 二쇰Ц 遺덇?
+?먯뇙 怨꾩쥖???좉퇋 posting 遺덇?
+?꾪긽怨꾩쥖? ?먭린怨꾩젙? 遺꾨━
+KSD 怨꾩쥖? PowerBase 怨좉컼怨꾩쥖??蹂꾨룄
 ```
 
 ---
 
 ## 4.5 stbase-product
 
-상품마스터.
+?곹뭹留덉뒪??
 
 SecurityType:
 
@@ -279,99 +279,99 @@ tradableMarkets
 
 ## 4.6 stbase-retail-channel-sim
 
-개인 고객 요청을 시뮬레이션합니다.
+媛쒖씤 怨좉컼 ?붿껌???쒕??덉씠?섑빀?덈떎.
 
 Responsibilities:
 
 ```text
-개인 주문 요청
-잔고 조회
-체결 조회
-상품 조회
-거래내역 조회
+媛쒖씤 二쇰Ц ?붿껌
+?붽퀬 議고쉶
+泥닿껐 議고쉶
+?곹뭹 議고쉶
+嫄곕옒?댁뿭 議고쉶
 ```
 
 Rule:
 
 ```text
-Retail Channel은 원장을 직접 수정하지 않는다.
+Retail Channel? ?먯옣??吏곸젒 ?섏젙?섏? ?딅뒗??
 ```
 
 ---
 
 ## 4.7 stbase-branch-terminal-sim
 
-영업점/직원 단말 시뮬레이션.
+?곸뾽??吏곸썝 ?⑤쭚 ?쒕??덉씠??
 
 Responsibilities:
 
 ```text
-직원 대행 주문
-고객 계좌 조회
-투자성향 확인
-채권 판매 입력
-운영성 조회
+吏곸썝 ???二쇰Ц
+怨좉컼 怨꾩쥖 議고쉶
+?ъ옄?깊뼢 ?뺤씤
+梨꾧텒 ?먮ℓ ?낅젰
+?댁쁺??議고쉶
 ```
 
 Rule:
 
 ```text
-직원 행위는 audit log에 operatorId와 함께 남긴다.
+吏곸썝 ?됱쐞??audit log??operatorId? ?④퍡 ?④릿??
 ```
 
 ---
 
 ## 4.8 stbase-kfront-sim
 
-전문 트레이더/법인영업/자기매매 OMS 시뮬레이션.
+?꾨Ц ?몃젅?대뜑/踰뺤씤?곸뾽/?먭린留ㅻℓ OMS ?쒕??덉씠??
 
 Responsibilities:
 
 ```text
-전문 주문 입력
-자기매매 주문
-바스켓 주문
-알고리즘 주문 더미
-FIX 스타일 주문 메시지 생성
-시장데이터 기반 주문 판단 더미
+?꾨Ц 二쇰Ц ?낅젰
+?먭린留ㅻℓ 二쇰Ц
+諛붿뒪耳?二쇰Ц
+?뚭퀬由ъ쬁 二쇰Ц ?붾?
+FIX ?ㅽ???二쇰Ц 硫붿떆吏 ?앹꽦
+?쒖옣?곗씠??湲곕컲 二쇰Ц ?먮떒 ?붾?
 ```
 
 Rules:
 
 ```text
-K-FRONT는 원장을 직접 수정하지 않는다.
-K-FRONT는 주문/거래 의사와 메시지만 생성한다.
+K-FRONT???먯옣??吏곸젒 ?섏젙?섏? ?딅뒗??
+K-FRONT??二쇰Ц/嫄곕옒 ?섏궗? 硫붿떆吏留??앹꽦?쒕떎.
 ```
 
 ---
 
 ## 4.9 stbase-stp-hub-sim
 
-기관투자가와 증권사 사이의 허브.
+湲곌??ъ옄媛? 利앷텒???ъ씠???덈툕.
 
 Responsibilities:
 
 ```text
-Buy-side 주문 메시지 수신
-Sell-side로 라우팅
-체결결과 중계
-매매보고서 중계
-결제내역 확인 메시지 중계
-FIX 스타일 메시지 변환
+Buy-side 二쇰Ц 硫붿떆吏 ?섏떊
+Sell-side濡??쇱슦??
+泥닿껐寃곌낵 以묎퀎
+留ㅻℓ蹂닿퀬??以묎퀎
+寃곗젣?댁뿭 ?뺤씤 硫붿떆吏 以묎퀎
+FIX ?ㅽ???硫붿떆吏 蹂??
 ```
 
 Rules:
 
 ```text
-STP-HUB는 개인 고객 채널이 아니다.
-STP-HUB는 기관/자산운용사 주문 허브다.
+STP-HUB??媛쒖씤 怨좉컼 梨꾨꼸???꾨땲??
+STP-HUB??湲곌?/?먯궛?댁슜??二쇰Ц ?덈툕??
 ```
 
 ---
 
 ## 4.10 stbase-order-routing
 
-장내 주문 라우팅.
+?λ궡 二쇰Ц ?쇱슦??
 
 Entities:
 
@@ -401,26 +401,26 @@ FAILED
 Rules:
 
 ```text
-장내 주문만 Order를 사용한다.
-장외채권은 Order가 아니라 TradeCapture를 사용한다.
-주문 전 현금/증권 hold가 필요하다.
-상태변경 API는 idempotency key 필수다.
+?λ궡 二쇰Ц留?Order瑜??ъ슜?쒕떎.
+?μ쇅梨꾧텒? Order媛 ?꾨땲??TradeCapture瑜??ъ슜?쒕떎.
+二쇰Ц ???꾧툑/利앷텒 hold媛 ?꾩슂?섎떎.
+?곹깭蹂寃?API??idempotency key ?꾩닔??
 ```
 
 ---
 
 ## 4.11 stbase-sor-sim
 
-복수거래시장 Smart Order Routing.
+蹂듭닔嫄곕옒?쒖옣 Smart Order Routing.
 
 Responsibilities:
 
 ```text
-시장별 시세 비교
-주문 목적지 결정
-최선집행 규칙 평가
-장애 시 우선 시장 라우팅
-라우팅 증적 저장
+?쒖옣蹂??쒖꽭 鍮꾧탳
+二쇰Ц 紐⑹쟻吏 寃곗젙
+理쒖꽑吏묓뻾 洹쒖튃 ?됯?
+?μ븷 ???곗꽑 ?쒖옣 ?쇱슦??
+?쇱슦??利앹쟻 ???
 ```
 
 Entities:
@@ -436,28 +436,28 @@ RoutingEvidence
 Initial simplification:
 
 ```text
-Phase 1에서는 KRX-Sim 단일 venue만 둔다.
-하지만 구조는 복수 venue를 허용한다.
+Phase 1?먯꽌??KRX-Sim ?⑥씪 venue留??붾떎.
+?섏?留?援ъ“??蹂듭닔 venue瑜??덉슜?쒕떎.
 ```
 
 ---
 
 ## 4.12 stbase-stocknet-sim
 
-전문망/주문망/시세망 시뮬레이션.
+?꾨Ц留?二쇰Ц留??쒖꽭留??쒕??덉씠??
 
 Responsibilities:
 
 ```text
-주문 전문 전달
-체결 전문 전달
-시세 전문 전달
-청산 전문 전달
-결제 전문 전달
-중복 전문 시뮬레이션
-지연 전문 시뮬레이션
-재전송
-전문 로그
+二쇰Ц ?꾨Ц ?꾨떖
+泥닿껐 ?꾨Ц ?꾨떖
+?쒖꽭 ?꾨Ц ?꾨떖
+泥?궛 ?꾨Ц ?꾨떖
+寃곗젣 ?꾨Ц ?꾨떖
+以묐났 ?꾨Ц ?쒕??덉씠??
+吏???꾨Ц ?쒕??덉씠??
+?ъ쟾??
+?꾨Ц 濡쒓렇
 ```
 
 Entities:
@@ -473,28 +473,28 @@ ExternalMessageLog
 Rules:
 
 ```text
-Cross-module market message는 StockNet-Sim을 경유한다.
-전문은 correlationId를 가진다.
-전문 중복 수신에 안전해야 한다.
+Cross-module market message??StockNet-Sim??寃쎌쑀?쒕떎.
+?꾨Ц? correlationId瑜?媛吏꾨떎.
+?꾨Ц 以묐났 ?섏떊???덉쟾?댁빞 ?쒕떎.
 ```
 
 ---
 
 ## 4.13 stbase-exture-sim
 
-거래소 시장시스템.
+嫄곕옒???쒖옣?쒖뒪??
 
 Responsibilities:
 
 ```text
-시장 세션 관리
-호가 접수
-호가장 관리
-매칭 엔진
-체결 생성
-체결결과 통보
-시장 규칙 적용
-청산 원천 데이터 생성
+?쒖옣 ?몄뀡 愿由?
+?멸? ?묒닔
+?멸???愿由?
+留ㅼ묶 ?붿쭊
+泥닿껐 ?앹꽦
+泥닿껐寃곌낵 ?듬낫
+?쒖옣 洹쒖튃 ?곸슜
+泥?궛 ?먯쿇 ?곗씠???앹꽦
 ```
 
 Entities:
@@ -522,24 +522,24 @@ HALTED
 Rules:
 
 ```text
-EXTURE-Sim은 고객별 원장을 모른다.
-EXTURE-Sim은 회원/증권사 단위 주문을 처리한다.
+EXTURE-Sim? 怨좉컼蹂??먯옣??紐⑤Ⅸ??
+EXTURE-Sim? ?뚯썝/利앷텒???⑥쐞 二쇰Ц??泥섎━?쒕떎.
 ```
 
 ---
 
 ## 4.14 stbase-krx-clearing-sim
 
-청산 시뮬레이션.
+泥?궛 ?쒕??덉씠??
 
 Responsibilities:
 
 ```text
-체결 집계
-회원별 차감 계산
-매수/매도 결제금액 계산
-증권 인도수량 계산
-결제지시 생성
+泥닿껐 吏묎퀎
+?뚯썝蹂?李④컧 怨꾩궛
+留ㅼ닔/留ㅻ룄 寃곗젣湲덉븸 怨꾩궛
+利앷텒 ?몃룄?섎웾 怨꾩궛
+寃곗젣吏???앹꽦
 ```
 
 Entities:
@@ -554,29 +554,29 @@ ClearingInstruction
 Rules:
 
 ```text
-체결과 결제는 다르다.
-청산 결과가 KSD-Sim 결제지시의 근거가 된다.
+泥닿껐怨?寃곗젣???ㅻⅤ??
+泥?궛 寃곌낵媛 KSD-Sim 寃곗젣吏?쒖쓽 洹쇨굅媛 ?쒕떎.
 ```
 
 ---
 
 ## 4.15 stbase-ksd-sim
 
-예탁결제원 시뮬레이션.
+?덊긽寃곗젣???쒕??덉씠??
 
 Responsibilities:
 
 ```text
-전자등록 증권 관리
-예탁계좌 관리
-참가기관 단위 잔고 관리
-계좌대체
-DVP 결제
-권리관리
-채권 이자 지급
-채권 만기 상환
-배당 지급
-대사 자료 제공
+?꾩옄?깅줉 利앷텒 愿由?
+?덊긽怨꾩쥖 愿由?
+李멸?湲곌? ?⑥쐞 ?붽퀬 愿由?
+怨꾩쥖?泥?
+DVP 寃곗젣
+沅뚮━愿由?
+梨꾧텒 ?댁옄 吏湲?
+梨꾧텒 留뚭린 ?곹솚
+諛곕떦 吏湲?
+????먮즺 ?쒓났
 ```
 
 Entities:
@@ -596,25 +596,25 @@ DividendPayment
 Rules:
 
 ```text
-KSD-Sim은 고객별 내부 원장을 직접 관리하지 않는다.
-KSD-Sim은 증권사/참가기관 단위 총량을 관리한다.
-PowerBase-Sim 고객별 합산과 KSD-Sim 총량이 대사되어야 한다.
+KSD-Sim? 怨좉컼蹂??대? ?먯옣??吏곸젒 愿由ы븯吏 ?딅뒗??
+KSD-Sim? 利앷텒??李멸?湲곌? ?⑥쐞 珥앸웾??愿由ы븳??
+PowerBase-Sim 怨좉컼蹂??⑹궛怨?KSD-Sim 珥앸웾????щ릺?댁빞 ?쒕떎.
 ```
 
 ---
 
 ## 4.16 stbase-kofia-freebond-sim
 
-장외채권 거래 전용 시스템.
+?μ쇅梨꾧텒 嫄곕옒 ?꾩슜 ?쒖뒪??
 
 Responsibilities:
 
 ```text
-호가 게시
-트레이딩보드
-전용메신저
-거래 조건 협의
-장외채권 체결 후보 생성
+?멸? 寃뚯떆
+?몃젅?대뵫蹂대뱶
+?꾩슜硫붿떊?
+嫄곕옒 議곌굔 ?묒쓽
+?μ쇅梨꾧텒 泥닿껐 ?꾨낫 ?앹꽦
 ```
 
 Entities:
@@ -630,25 +630,25 @@ OtcBondDealAgreement
 Rule:
 
 ```text
-FreeBond-Sim은 거래 협의와 정보 집중의 역할이다.
-최종 원장 반영은 PowerBase-Sim에서 한다.
+FreeBond-Sim? 嫄곕옒 ?묒쓽? ?뺣낫 吏묒쨷????븷?대떎.
+理쒖쥌 ?먯옣 諛섏쁺? PowerBase-Sim?먯꽌 ?쒕떎.
 ```
 
 ---
 
 ## 4.17 stbase-kofia-disclosure-sim
 
-장외채권 보고/공시.
+?μ쇅梨꾧텒 蹂닿퀬/怨듭떆.
 
 Responsibilities:
 
 ```text
-장외채권 거래보고 접수
-보고 지연 감지
-호가/매매정보 공시
-수익률 통계
-거래량 통계
-보고 오류 반려
+?μ쇅梨꾧텒 嫄곕옒蹂닿퀬 ?묒닔
+蹂닿퀬 吏??媛먯?
+?멸?/留ㅻℓ?뺣낫 怨듭떆
+?섏씡瑜??듦퀎
+嫄곕옒???듦퀎
+蹂닿퀬 ?ㅻ쪟 諛섎젮
 ```
 
 Entities:
@@ -663,27 +663,27 @@ ReportingDelayViolation
 Rules:
 
 ```text
-보고 실패는 거래 실패와 별도 상태로 관리한다.
-보고 지연은 compliance event를 생성한다.
+蹂닿퀬 ?ㅽ뙣??嫄곕옒 ?ㅽ뙣? 蹂꾨룄 ?곹깭濡?愿由ы븳??
+蹂닿퀬 吏?곗? compliance event瑜??앹꽦?쒕떎.
 ```
 
 ---
 
 ## 4.18 stbase-fss-sim
 
-금융감독원 시뮬레이션.
+湲덉쑖媛먮룆???쒕??덉씠??
 
 Responsibilities:
 
 ```text
-발행공시 접수
-증권신고서 더미
-업무보고 접수
-검사 이벤트
-자료제출 요청
-투자자보호 점검
-불완전판매 점검
-내부통제 점검
+諛쒗뻾怨듭떆 ?묒닔
+利앷텒?좉퀬???붾?
+?낅Т蹂닿퀬 ?묒닔
+寃???대깽??
+?먮즺?쒖텧 ?붿껌
+?ъ옄?먮낫???먭?
+遺덉셿?꾪뙋留??먭?
+?대??듭젣 ?먭?
 ```
 
 Entities:
@@ -700,57 +700,57 @@ InvestorProtectionFinding
 Rules:
 
 ```text
-FSS-Sim은 매매체결기관이 아니다.
-FSS-Sim은 결제기관이 아니다.
-FSS-Sim은 거래 플로우 한가운데 끼지 않는다.
+FSS-Sim? 留ㅻℓ泥닿껐湲곌????꾨땲??
+FSS-Sim? 寃곗젣湲곌????꾨땲??
+FSS-Sim? 嫄곕옒 ?뚮줈???쒓??대뜲 ?쇱? ?딅뒗??
 ```
 
 ---
 
 ## 4.19 stbase-market-info-sim
 
-시장정보.
+?쒖옣?뺣낫.
 
 Responsibilities:
 
 ```text
-시세 조회
-종목 정보 조회
-시장 통계
-뉴스 더미
-공시 더미
+?쒖꽭 議고쉶
+醫낅ぉ ?뺣낫 議고쉶
+?쒖옣 ?듦퀎
+?댁뒪 ?붾?
+怨듭떆 ?붾?
 ```
 
 Rule:
 
 ```text
-시장정보 조회와 주문 처리는 분리한다.
+?쒖옣?뺣낫 議고쉶? 二쇰Ц 泥섎━??遺꾨━?쒕떎.
 ```
 
 ---
 
 ## 4.20 stbase-bond-info-sim
 
-채권정보/계산.
+梨꾧텒?뺣낫/怨꾩궛.
 
 Responsibilities:
 
 ```text
-채권 발행정보
-장내/장외 가격정보
-수익률 계산
-경과이자 계산
-clean price / dirty price 계산
-채권 단가 계산
-금리정보
-신용등급
+梨꾧텒 諛쒗뻾?뺣낫
+?λ궡/?μ쇅 媛寃⑹젙蹂?
+?섏씡瑜?怨꾩궛
+寃쎄낵?댁옄 怨꾩궛
+clean price / dirty price 怨꾩궛
+梨꾧텒 ?④? 怨꾩궛
+湲덈━?뺣낫
+?좎슜?깃툒
 ```
 
 Rules:
 
 ```text
-채권 계산 로직은 이 모듈 또는 별도 calculation 모듈에 둔다.
-주문 서비스/컨트롤러에 계산 로직을 흩뿌리지 않는다.
+梨꾧텒 怨꾩궛 濡쒖쭅? ??紐⑤뱢 ?먮뒗 蹂꾨룄 calculation 紐⑤뱢???붾떎.
+二쇰Ц ?쒕퉬??而⑦듃濡ㅻ윭??怨꾩궛 濡쒖쭅???⑸퓣由ъ? ?딅뒗??
 ```
 
 ---
@@ -763,20 +763,20 @@ Rules:
 
 ```text
 RetailChannel
-→ PowerBaseCore.validateAccountAndCash
-→ Ledger.holdCash
-→ OrderRouting.createOrder
-→ SOR.decideVenue
-→ StockNet.sendOrderMessage
-→ Exture.acceptOrder
-→ Exture.match
-→ StockNet.sendExecutionReport
-→ PowerBaseCore.applyExecution
-→ Clearing.createInstruction
-→ Settlement.createInstruction
-→ KsdSim.dvpSettlement
-→ Ledger.finalizeCashAndSecurity
-→ Reconciliation.comparePowerBaseAndKsd
+??PowerBaseCore.validateAccountAndCash
+??Ledger.holdCash
+??OrderRouting.createOrder
+??SOR.decideVenue
+??StockNet.sendOrderMessage
+??Exture.acceptOrder
+??Exture.match
+??StockNet.sendExecutionReport
+??PowerBaseCore.applyExecution
+??Clearing.createInstruction
+??Settlement.createInstruction
+??KsdSim.dvpSettlement
+??Ledger.finalizeCashAndSecurity
+??Reconciliation.comparePowerBaseAndKsd
 ```
 
 ---
@@ -785,15 +785,15 @@ RetailChannel
 
 ```text
 Institution
-→ StpHub.receiveFixOrder
-→ StpHub.routeToBroker
-→ KFrontOrPowerBase.receiveInstitutionOrder
-→ OrderRouting.validate
-→ StockNet.send
-→ Exture.match
-→ StockNet.executionReport
-→ StpHub.forwardExecution
-→ PowerBase.ledgerAndSettlement
+??StpHub.receiveFixOrder
+??StpHub.routeToBroker
+??KFrontOrPowerBase.receiveInstitutionOrder
+??OrderRouting.validate
+??StockNet.send
+??Exture.match
+??StockNet.executionReport
+??StpHub.forwardExecution
+??PowerBase.ledgerAndSettlement
 ```
 
 ---
@@ -802,14 +802,14 @@ Institution
 
 ```text
 Trader
-→ KFront.createHouseOrder
-→ OrderRouting.validateHouseAccount
-→ SOR.decide
-→ StockNet.send
-→ Exture.match
-→ PowerBase.applyHouseExecution
-→ Settlement
-→ Reconciliation
+??KFront.createHouseOrder
+??OrderRouting.validateHouseAccount
+??SOR.decide
+??StockNet.send
+??Exture.match
+??PowerBase.applyHouseExecution
+??Settlement
+??Reconciliation
 ```
 
 ---
@@ -818,15 +818,15 @@ Trader
 
 ```text
 RetailClient
-→ RetailChannel.requestOtcBondBuy
-→ PowerBase.validateSuitabilityAndCash
-→ BondInventory.reserveByConditionalUpdate
-→ OtcBondTrade.create
-→ Ledger.createPendingPostings
-→ KofiaDisclosure.reportOtcBondTrade
-→ KsdSim.bookEntryTransferIfNeeded
-→ Ledger.finalize
-→ Reconciliation
+??RetailChannel.requestOtcBondBuy
+??PowerBase.validateSuitabilityAndCash
+??BondInventory.reserveByConditionalUpdate
+??OtcBondTrade.create
+??Ledger.createPendingPostings
+??KofiaDisclosure.reportOtcBondTrade
+??KsdSim.bookEntryTransferIfNeeded
+??Ledger.finalize
+??Reconciliation
 ```
 
 ---
@@ -835,13 +835,13 @@ RetailClient
 
 ```text
 DealerA / DealerB
-→ FreeBond.quoteAndNegotiate
-→ OtcTradeCapture
-→ PowerBase.confirmTrade
-→ KofiaDisclosure.report
-→ KsdSim.dvpSettlement
-→ Ledger.finalizeBothSides
-→ Reconciliation
+??FreeBond.quoteAndNegotiate
+??OtcTradeCapture
+??PowerBase.confirmTrade
+??KofiaDisclosure.report
+??KsdSim.dvpSettlement
+??Ledger.finalizeBothSides
+??Reconciliation
 ```
 
 ---
@@ -850,11 +850,11 @@ DealerA / DealerB
 
 ```text
 BondInfo.couponSchedule
-→ KsdSim.createCouponCorporateAction
-→ PowerBase.createRecordDateSnapshot
-→ Ledger.postCouponCash
-→ Tax.postWithholding
-→ Reconciliation
+??KsdSim.createCouponCorporateAction
+??PowerBase.createRecordDateSnapshot
+??Ledger.postCouponCash
+??Tax.postWithholding
+??Reconciliation
 ```
 
 ---
@@ -863,12 +863,12 @@ BondInfo.couponSchedule
 
 ```text
 BondInfo.maturityDateArrived
-→ KsdSim.redemptionEvent
-→ PowerBase.calculateHolderAmounts
-→ Ledger.securityDecrease
-→ Ledger.cashIncrease
-→ SecurityPosition.close
-→ Reconciliation
+??KsdSim.redemptionEvent
+??PowerBase.calculateHolderAmounts
+??Ledger.securityDecrease
+??Ledger.cashIncrease
+??SecurityPosition.close
+??Reconciliation
 ```
 
 ---
@@ -877,14 +877,14 @@ BondInfo.maturityDateArrived
 
 ```text
 KFront.createFuturesOrder
-→ OrderRouting.checkMargin
-→ StockNet.send
-→ ExtureDerivatives.match
-→ PowerBase.createOpenInterest
-→ Ledger.holdInitialMargin
-→ Batch.dailySettlement
-→ Ledger.postVariationMargin
-→ Risk.checkMarginCall
+??OrderRouting.checkMargin
+??StockNet.send
+??ExtureDerivatives.match
+??PowerBase.createOpenInterest
+??Ledger.holdInitialMargin
+??Batch.dailySettlement
+??Ledger.postVariationMargin
+??Risk.checkMarginCall
 ```
 
 ---
@@ -893,14 +893,14 @@ KFront.createFuturesOrder
 
 ```text
 RpContract.create
-→ Settlement.createStartLeg
-→ Ledger.cashTransfer
-→ Ledger.collateralLockOrTransfer
-→ Accrual.calculateRepoInterest
-→ Settlement.createEndLeg
-→ Ledger.returnCashPlusInterest
-→ Ledger.releaseCollateral
-→ Reconciliation
+??Settlement.createStartLeg
+??Ledger.cashTransfer
+??Ledger.collateralLockOrTransfer
+??Accrual.calculateRepoInterest
+??Settlement.createEndLeg
+??Ledger.returnCashPlusInterest
+??Ledger.releaseCollateral
+??Reconciliation
 ```
 
 ---
@@ -966,7 +966,7 @@ Write audit log
 
 ## 7. Idempotency Rules
 
-모든 상태변경 API는 idempotency key를 요구합니다.
+紐⑤뱺 ?곹깭蹂寃?API??idempotency key瑜??붽뎄?⑸땲??
 
 Examples:
 
@@ -1028,12 +1028,12 @@ Then relay:
 
 ```text
 TRADE_CONFIRMED
-→ SETTLEMENT_INSTRUCTION_CREATED
-→ KSD_INSTRUCTION_SENT
-→ KSD_ACCEPTED
-→ DVP_COMPLETED
-→ LEDGER_FINALIZED
-→ RECONCILED
+??SETTLEMENT_INSTRUCTION_CREATED
+??KSD_INSTRUCTION_SENT
+??KSD_ACCEPTED
+??DVP_COMPLETED
+??LEDGER_FINALIZED
+??RECONCILED
 ```
 
 Failure states:
@@ -1074,7 +1074,7 @@ external_message_logs
 
 ## 10. Reconciliation
 
-대사는 필수입니다.
+??щ뒗 ?꾩닔?낅땲??
 
 Types:
 
@@ -1100,8 +1100,8 @@ RESOLVED
 Rule:
 
 ```text
-대사 불일치를 자동 수정하지 않는다.
-대사 불일치는 exception으로 남기고 운영자 검토 대상으로 보낸다.
+???遺덉씪移섎? ?먮룞 ?섏젙?섏? ?딅뒗??
+???遺덉씪移섎뒗 exception?쇰줈 ?④린怨??댁쁺??寃????곸쑝濡?蹂대궦??
 ```
 
 ---
@@ -1134,10 +1134,10 @@ Error response:
 Rules:
 
 ```text
-모든 command API는 명시적 errorCode 사용
-stack trace 외부 노출 금지
-correlationId 전파
-traceId 응답 포함
+紐⑤뱺 command API??紐낆떆??errorCode ?ъ슜
+stack trace ?몃? ?몄텧 湲덉?
+correlationId ?꾪뙆
+traceId ?묐떟 ?ы븿
 ```
 
 ---
@@ -1148,18 +1148,18 @@ Example:
 
 ```text
 com.stbase.order
-├── api
-├── application
-├── domain
-├── infrastructure
-├── persistence
-└── support
+?쒋?? api
+?쒋?? application
+?쒋?? domain
+?쒋?? infrastructure
+?쒋?? persistence
+?붴?? support
 ```
 
 Layer rule:
 
 ```text
-api → application → domain
+api ??application ??domain
 infrastructure implements ports
 domain must not depend on Spring
 ```
@@ -1431,3 +1431,4 @@ Prefer safe failure.
 ## 19. One-Sentence Summary for AI
 
 STBase is a simulated securities operations platform that separates PowerBase-style brokerage core processing, K-FRONT/STP-HUB front-office flows, StockNet-style message transport, EXTURE-style exchange matching, KSD-style settlement, KOFIA-style OTC bond disclosure, and FSS-style supervision, while preserving ledger integrity, idempotency, auditability, and reconciliation.
+

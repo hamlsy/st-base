@@ -1,14 +1,14 @@
-# STBase Domain Structure Guide
+﻿# STBase Domain Structure Guide
 
-> 이 문서는 STBase의 DDD 폴더 구조와 클래스 배치 기준을 설명합니다.
+> ??臾몄꽌??STBase??DDD ?대뜑 援ъ“? ?대옒??諛곗튂 湲곗????ㅻ챸?⑸땲??
 
 ---
 
-## 1. 기본 원칙
+## 1. 湲곕낯 ?먯튃
 
-STBase는 도메인 중심 폴더 구조를 사용합니다.
+STBase???꾨찓??以묒떖 ?대뜑 援ъ“瑜??ъ슜?⑸땲??
 
-기술별 최상위 패키지로 나누지 않습니다.
+湲곗닠蹂?理쒖긽???⑦궎吏濡??섎늻吏 ?딆뒿?덈떎.
 
 Bad:
 
@@ -32,9 +32,9 @@ otc_bond_trade/
 
 ---
 
-## 2. 표준 도메인 폴더 구조
+## 2. ?쒖? ?꾨찓???대뜑 援ъ“
 
-각 도메인은 아래 구조를 따릅니다.
+媛??꾨찓?몄? ?꾨옒 援ъ“瑜??곕쫭?덈떎.
 
 ```text
 domain-name/
@@ -56,33 +56,33 @@ domain-name/
     dto/
 ```
 
-필요 없는 하위 폴더는 만들지 않아도 됩니다.
+?꾩슂 ?녿뒗 ?섏쐞 ?대뜑??留뚮뱾吏 ?딆븘???⑸땲??
 
 ---
 
 ## 3. Package Naming
 
-Java package는 앱과 도메인을 함께 드러냅니다.
+Java package???깃낵 ?꾨찓?몄쓣 ?④퍡 ?쒕윭?낅땲??
 
 Example:
 
 ```text
-com.stbase.powerbase.otcbondtrade.application.usecase
-com.stbase.powerbase.otcbondtrade.application.service
-com.stbase.powerbase.otcbondtrade.domain.entity
-com.stbase.powerbase.otcbondtrade.domain.value
-com.stbase.powerbase.otcbondtrade.domain.repository
-com.stbase.powerbase.otcbondtrade.infrastructure.persistence
-com.stbase.powerbase.otcbondtrade.presentation.controller
-com.stbase.powerbase.otcbondtrade.presentation.dto
+com.stbase.stbaseapp.otcbondtrade.application.usecase
+com.stbase.stbaseapp.otcbondtrade.application.service
+com.stbase.stbaseapp.otcbondtrade.domain.entity
+com.stbase.stbaseapp.otcbondtrade.domain.value
+com.stbase.stbaseapp.otcbondtrade.domain.repository
+com.stbase.stbaseapp.otcbondtrade.infrastructure.persistence
+com.stbase.stbaseapp.otcbondtrade.presentation.controller
+com.stbase.stbaseapp.otcbondtrade.presentation.dto
 ```
 
-앱이 다르면 package root도 분리합니다.
+?깆씠 ?ㅻⅤ硫?package root??遺꾨━?⑸땲??
 
 Examples:
 
 ```text
-com.stbase.powerbase
+com.stbase.stbaseapp
 com.stbase.ksd
 com.stbase.kofia
 com.stbase.fss
@@ -95,7 +95,7 @@ com.stbase.admin
 
 ## 4. Application Usecase
 
-Usecase는 하나의 명확한 업무 행위를 대표합니다.
+Usecase???섎굹??紐낇솗???낅Т ?됱쐞瑜???쒗빀?덈떎.
 
 Class naming:
 
@@ -151,7 +151,7 @@ return result
 
 ## 5. Application Service
 
-Application service는 여러 usecase에서 공유되는 application-level 기능입니다.
+Application service???щ윭 usecase?먯꽌 怨듭쑀?섎뒗 application-level 湲곕뒫?낅땲??
 
 Examples:
 
@@ -185,7 +185,7 @@ directly call external app inside trade transaction
 
 ## 6. Domain Entity
 
-Entity는 도메인 상태와 불변식을 보호합니다.
+Entity???꾨찓???곹깭? 遺덈??앹쓣 蹂댄샇?⑸땲??
 
 Examples:
 
@@ -222,13 +222,13 @@ process(...)
 handle(...)
 ```
 
-상태 전이는 Entity 또는 Domain Service가 보호합니다.
+?곹깭 ?꾩씠??Entity ?먮뒗 Domain Service媛 蹂댄샇?⑸땲??
 
 ---
 
 ## 7. Domain Value Object
 
-Value Object는 값의 의미를 명확히 합니다.
+Value Object??媛믪쓽 ?섎?瑜?紐낇솗???⑸땲??
 
 Examples:
 
@@ -248,17 +248,17 @@ IdempotencyKey
 Rules:
 
 ```text
-Money/Rate/Price는 BigDecimal 기반
-불변 객체로 설계
-유효하지 않은 값 생성 금지
-equals/hashCode 의미 보장
+Money/Rate/Price??BigDecimal 湲곕컲
+遺덈? 媛앹껜濡??ㅺ퀎
+?좏슚?섏? ?딆? 媛??앹꽦 湲덉?
+equals/hashCode ?섎? 蹂댁옣
 ```
 
 ---
 
 ## 8. Domain Repository
 
-`domain/repository`에는 interface만 둡니다.
+`domain/repository`?먮뒗 interface留??〓땲??
 
 Example:
 
@@ -269,13 +269,13 @@ public interface OtcBondTradeRepository {
 }
 ```
 
-Spring Data JPA는 domain layer에 들어오면 안 됩니다.
+Spring Data JPA??domain layer???ㅼ뼱?ㅻ㈃ ???⑸땲??
 
 ---
 
 ## 9. Infrastructure Persistence
 
-`infrastructure/persistence`에는 JPA 구현을 둡니다.
+`infrastructure/persistence`?먮뒗 JPA 援ы쁽???〓땲??
 
 Typical classes:
 
@@ -286,15 +286,15 @@ OtcBondTradeRepositoryAdapter
 OtcBondTradeMapper
 ```
 
-JPA Entity와 Domain Entity를 분리하는 것을 기본으로 합니다.
+JPA Entity? Domain Entity瑜?遺꾨━?섎뒗 寃껋쓣 湲곕낯?쇰줈 ?⑸땲??
 
-초기 속도를 위해 같은 클래스를 쓰고 싶다면, 반드시 문서화하고 나중에 분리할 수 있게 합니다.
+珥덇린 ?띾룄瑜??꾪빐 媛숈? ?대옒?ㅻ? ?곌퀬 ?띕떎硫? 諛섎뱶??臾몄꽌?뷀븯怨??섏쨷??遺꾨━?????덇쾶 ?⑸땲??
 
 ---
 
 ## 10. Infrastructure Client
 
-외부 앱 API client는 `infrastructure/client`에 둡니다.
+?몃? ??API client??`infrastructure/client`???〓땲??
 
 Examples:
 
@@ -308,44 +308,44 @@ PowerbaseTradeClient
 Rules:
 
 ```text
-client는 API 호출만 담당
-client는 원장/거래 상태를 결정하지 않음
-client 결과는 external message log로 기록
-상태 변경 외부 호출은 outbox relay가 수행
+client??API ?몄텧留??대떦
+client???먯옣/嫄곕옒 ?곹깭瑜?寃곗젙?섏? ?딆쓬
+client 寃곌낵??external message log濡?湲곕줉
+?곹깭 蹂寃??몃? ?몄텧? outbox relay媛 ?섑뻾
 ```
 
 ---
 
 ## 11. Presentation
 
-`presentation/controller`에는 REST Controller를 둡니다.
+`presentation/controller`?먮뒗 REST Controller瑜??〓땲??
 
-`presentation/dto`에는 request/response DTO를 둡니다.
+`presentation/dto`?먮뒗 request/response DTO瑜??〓땲??
 
 Controller responsibility:
 
 ```text
 HTTP request validation
 header extraction
-request DTO -> command 변환
-usecase.execute 호출
-result -> response DTO 변환
+request DTO -> command 蹂??
+usecase.execute ?몄텧
+result -> response DTO 蹂??
 ```
 
 Controller forbidden:
 
 ```text
-비즈니스 상태 전이
-원장 posting 생성
-JPA repository 직접 호출
-외부기관 client 직접 호출
+鍮꾩쫰?덉뒪 ?곹깭 ?꾩씠
+?먯옣 posting ?앹꽦
+JPA repository 吏곸젒 ?몄텧
+?몃?湲곌? client 吏곸젒 ?몄텧
 ```
 
 ---
 
 ## 12. Common
 
-공통은 `common`에 둡니다.
+怨듯넻? `common`???〓땲??
 
 Suggested structure:
 
@@ -386,16 +386,16 @@ KofiaReport
 Complaint
 ```
 
-Common은 특정 업무를 알면 안 됩니다.
+Common? ?뱀젙 ?낅Т瑜??뚮㈃ ???⑸땲??
 
 ---
 
 ## 13. Example Domain Tree
 
-Example for `powerbase-app` OTC bond trade domain:
+Example for `stbase-app` OTC bond trade domain:
 
 ```text
-apps/powerbase-app/src/main/java/com/stbase/powerbase/otcbondtrade/
+apps/stbase-app/src/main/java/com/stbase/powerbase/otcbondtrade/
   application/
     usecase/
       CreateOtcBondTradeUseCase.java
@@ -437,16 +437,17 @@ apps/powerbase-app/src/main/java/com/stbase/powerbase/otcbondtrade/
 
 ## 14. Review Rule
 
-새 코드가 아래 냄새를 보이면 구조를 다시 봅니다.
+??肄붾뱶媛 ?꾨옒 ?꾩깉瑜?蹂댁씠硫?援ъ“瑜??ㅼ떆 遊낅땲??
 
 ```text
-Controller가 너무 똑똑하다
-Usecase가 아닌 Service가 모든 흐름을 숨긴다
-Domain entity가 단순 getter/setter 덩어리다
-common에 업무 클래스가 들어간다
-JPA repository가 application/usecase에서 직접 사용된다
-외부 API 호출이 transaction 안에서 즉시 수행된다
-ledger posting이 update 된다
-상태값이 String이다
-테스트가 happy path만 있다
+Controller媛 ?덈Т ?묐삊?섎떎
+Usecase媛 ?꾨땶 Service媛 紐⑤뱺 ?먮쫫???④릿??
+Domain entity媛 ?⑥닚 getter/setter ?⑹뼱由щ떎
+common???낅Т ?대옒?ㅺ? ?ㅼ뼱媛꾨떎
+JPA repository媛 application/usecase?먯꽌 吏곸젒 ?ъ슜?쒕떎
+?몃? API ?몄텧??transaction ?덉뿉??利됱떆 ?섑뻾?쒕떎
+ledger posting??update ?쒕떎
+?곹깭媛믪씠 String?대떎
+?뚯뒪?멸? happy path留??덈떎
 ```
+

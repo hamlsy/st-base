@@ -1,32 +1,32 @@
-# STBase Multi-App Bond Simulator Plan
+﻿# STBase Multi-App Bond Simulator Plan
 
-> 이 문서는 STBase를 AI 바이브코딩으로 구현할 때 따라야 할 기획/개발 기준서입니다.
+> ??臾몄꽌??STBase瑜?AI 諛붿씠釉뚯퐫?⑹쑝濡?援ы쁽?????곕씪????湲고쉷/媛쒕컻 湲곗??쒖엯?덈떎.
 >
-> 목표는 단순 주문 API가 아니라, **외부 증권사와 유관기관이 API로 통신하며 장내/장외 채권거래, 원장, 결제, 보고, 민원, 운영 재처리까지 경험할 수 있는 모의 증권업무 시뮬레이터**를 만드는 것입니다.
+> 紐⑺몴???⑥닚 二쇰Ц API媛 ?꾨땲?? **?몃? 利앷텒?ъ? ?좉?湲곌???API濡??듭떊?섎ŉ ?λ궡/?μ쇅 梨꾧텒嫄곕옒, ?먯옣, 寃곗젣, 蹂닿퀬, 誘쇱썝, ?댁쁺 ?ъ쿂由ш퉴吏 寃쏀뿕?????덈뒗 紐⑥쓽 利앷텒?낅Т ?쒕??덉씠??*瑜?留뚮뱶??寃껋엯?덈떎.
 
 ---
 
-## 1. 개발 방향 결론
+## 1. 媛쒕컻 諛⑺뼢 寃곕줎
 
-STBase는 초기부터 단일 모놀리스가 아니라, **여러 Spring Boot 앱이 별도 서버로 실행되는 API형 시뮬레이터**로 개발합니다.
+STBase??珥덇린遺???⑥씪 紐⑤?由ъ뒪媛 ?꾨땲?? **?щ윭 Spring Boot ?깆씠 蹂꾨룄 ?쒕쾭濡??ㅽ뻾?섎뒗 API???쒕??덉씠??*濡?媛쒕컻?⑸땲??
 
-단, 운영용 마이크로서비스처럼 복잡하게 시작하지 않습니다.
+?? ?댁쁺??留덉씠?щ줈?쒕퉬?ㅼ쿂??蹂듭옟?섍쾶 ?쒖옉?섏? ?딆뒿?덈떎.
 
 ```text
-권장 방식:
+沅뚯옣 諛⑹떇:
 Gradle multi-project
-+ 여러 Spring Boot application
-+ 공통 library module
-+ Docker Compose 로컬 실행
-+ HTTP REST API 통신
-+ Outbox 기반 재처리
-+ External Message Log 기반 증적
++ ?щ윭 Spring Boot application
++ 怨듯넻 library module
++ Docker Compose 濡쒖뺄 ?ㅽ뻾
++ HTTP REST API ?듭떊
++ Outbox 湲곕컲 ?ъ쿂由?
++ External Message Log 湲곕컲 利앹쟻
 ```
 
-초기에는 Kafka/RabbitMQ를 사용하지 않습니다.
+珥덇린?먮뒗 Kafka/RabbitMQ瑜??ъ슜?섏? ?딆뒿?덈떎.
 
 ```text
-초기 통신 방식:
+珥덇린 ?듭떊 諛⑹떇:
 HTTP REST
 + idempotency key
 + correlation id
@@ -35,89 +35,89 @@ HTTP REST
 + retry status
 ```
 
-나중에 필요하면 outbox relay의 전송 방식을 HTTP에서 Kafka/RabbitMQ로 바꿀 수 있게 설계합니다.
+?섏쨷???꾩슂?섎㈃ outbox relay???꾩넚 諛⑹떇??HTTP?먯꽌 Kafka/RabbitMQ濡?諛붽? ???덇쾶 ?ㅺ퀎?⑸땲??
 
 ---
 
-## 2. 이 방식이 필요한 이유
+## 2. ??諛⑹떇???꾩슂???댁쑀
 
-이 프로젝트의 핵심 학습 대상은 단순 매수/매도 로직이 아닙니다.
+???꾨줈?앺듃???듭떖 ?숈뒿 ??곸? ?⑥닚 留ㅼ닔/留ㅻ룄 濡쒖쭅???꾨떃?덈떎.
 
-핵심은 다음입니다.
-
-```text
-기관 간 경계
-API 호출 실패
-응답 지연
-중복 전문
-결제 실패
-보고 실패
-대사 불일치
-운영자 재처리
-고객 민원 추적
-감사 증적
-```
-
-같은 JVM 내부 메서드 호출로 만들면 위 상황을 제대로 재현하기 어렵습니다.
-
-별도 서버 API형 시뮬레이터로 만들면 다음 상황을 현실적으로 구현할 수 있습니다.
+?듭떖? ?ㅼ쓬?낅땲??
 
 ```text
-거래는 확정됐지만 KOFIA 보고가 실패함
-보고는 성공했지만 KSD 결제가 실패함
-KSD 결제는 완료됐지만 PowerBase 내부 원장과 총량이 안 맞음
-외부 증권사가 동일 거래 요청을 중복 전송함
-운영자가 재처리했지만 중복 posting은 발생하면 안 됨
-고객 민원이 들어와서 거래, 보고, 결제, 원장, 감사로그를 추적해야 함
-FSS-Sim이 민원 관련 자료제출을 요청함
+湲곌? 媛?寃쎄퀎
+API ?몄텧 ?ㅽ뙣
+?묐떟 吏??
+以묐났 ?꾨Ц
+寃곗젣 ?ㅽ뙣
+蹂닿퀬 ?ㅽ뙣
+???遺덉씪移?
+?댁쁺???ъ쿂由?
+怨좉컼 誘쇱썝 異붿쟻
+媛먯궗 利앹쟻
 ```
 
-따라서 STBase는 **학습용 분산 증권업무 시뮬레이터**로 간주합니다.
+媛숈? JVM ?대? 硫붿꽌???몄텧濡?留뚮뱾硫????곹솴???쒕?濡??ы쁽?섍린 ?대졄?듬땲??
+
+蹂꾨룄 ?쒕쾭 API???쒕??덉씠?곕줈 留뚮뱾硫??ㅼ쓬 ?곹솴???꾩떎?곸쑝濡?援ы쁽?????덉뒿?덈떎.
+
+```text
+嫄곕옒???뺤젙?먯?留?KOFIA 蹂닿퀬媛 ?ㅽ뙣??
+蹂닿퀬???깃났?덉?留?KSD 寃곗젣媛 ?ㅽ뙣??
+KSD 寃곗젣???꾨즺?먯?留?STBase-App ?대? ?먯옣怨?珥앸웾????留욎쓬
+?몃? 利앷텒?ш? ?숈씪 嫄곕옒 ?붿껌??以묐났 ?꾩넚??
+?댁쁺?먭? ?ъ쿂由ы뻽吏留?以묐났 posting? 諛쒖깮?섎㈃ ????
+怨좉컼 誘쇱썝???ㅼ뼱???嫄곕옒, 蹂닿퀬, 寃곗젣, ?먯옣, 媛먯궗濡쒓렇瑜?異붿쟻?댁빞 ??
+FSS-Sim??誘쇱썝 愿???먮즺?쒖텧???붿껌??
+```
+
+?곕씪??STBase??**?숈뒿??遺꾩궛 利앷텒?낅Т ?쒕??덉씠??*濡?媛꾩＜?⑸땲??
 
 ---
 
-## 3. 우선 구현 범위
+## 3. ?곗꽑 援ы쁽 踰붿쐞
 
-처음부터 주식, 선물, RP, 복수거래시장까지 구현하지 않습니다.
+泥섏쓬遺??二쇱떇, ?좊Ъ, RP, 蹂듭닔嫄곕옒?쒖옣源뚯? 援ы쁽?섏? ?딆뒿?덈떎.
 
-우선순위는 다음입니다.
+?곗꽑?쒖쐞???ㅼ쓬?낅땲??
 
 ```text
-1. 장외채권 거래
-2. 채권 재고/상품/가격/수익률 계산
-3. PowerBase 원장 처리
-4. KOFIA 장외채권 거래보고
-5. KSD 계좌대체/DVP 결제
-6. 대사
-7. 고객 민원 접수/처리
-8. 운영자 재처리/감사로그
-9. 장내채권 거래소 시뮬레이션
+1. ?μ쇅梨꾧텒 嫄곕옒
+2. 梨꾧텒 ?ш퀬/?곹뭹/媛寃??섏씡瑜?怨꾩궛
+3. STBase-App ?먯옣 泥섎━
+4. KOFIA ?μ쇅梨꾧텒 嫄곕옒蹂닿퀬
+5. KSD 怨꾩쥖?泥?DVP 寃곗젣
+6. ???
+7. 怨좉컼 誘쇱썝 ?묒닔/泥섎━
+8. ?댁쁺???ъ쿂由?媛먯궗濡쒓렇
+9. ?λ궡梨꾧텒 嫄곕옒???쒕??덉씠??
 ```
 
-주식은 초기 범위에서 제외합니다.
+二쇱떇? 珥덇린 踰붿쐞?먯꽌 ?쒖쇅?⑸땲??
 
 ```text
-초기 제외:
-주식 주문
-주식 호가장
-주식 체결
-선물
+珥덇린 ?쒖쇅:
+二쇱떇 二쇰Ц
+二쇱떇 ?멸???
+二쇱떇 泥닿껐
+?좊Ъ
 RP
 ATS/SOR
-실제 금융기관 API 연동
-실제 계좌/자산 처리
+?ㅼ젣 湲덉쑖湲곌? API ?곕룞
+?ㅼ젣 怨꾩쥖/?먯궛 泥섎━
 ```
 
 ---
 
-## 4. 전체 앱 구성
+## 4. ?꾩껜 ??援ъ꽦
 
-초기 권장 앱 구성은 다음입니다.
+珥덇린 沅뚯옣 ??援ъ꽦? ?ㅼ쓬?낅땲??
 
 ```text
 apps/
-  powerbase-app
-  external-broker-app
+  stbase-app
+  external-broker-app (optional)
   freebond-app
   ksd-app
   kofia-app
@@ -134,214 +134,214 @@ infra/
   docker-compose.yml
 ```
 
-### 4.1 powerbase-app
+### 4.1 stbase-app
 
-증권사 업무계 중심 앱입니다.
+利앷텒???낅Т怨?以묒떖 ?깆엯?덈떎.
 
 Responsibilities:
 
 ```text
-고객 관리
-계좌 관리
-채권 상품 관리
-고객별 채권 잔고 관리
-현금 원장 관리
-채권 원장 관리
-장외채권 매수/매도 거래 확정
-외부 증권사 거래 요청 수신
-KOFIA 보고 요청 생성
-KSD 결제 요청 생성
-대사 작업 생성
-민원 접수 및 처리
-운영자 재처리 command
-감사로그 기록
+怨좉컼 愿由?
+怨꾩쥖 愿由?
+梨꾧텒 ?곹뭹 愿由?
+怨좉컼蹂?梨꾧텒 ?붽퀬 愿由?
+?꾧툑 ?먯옣 愿由?
+梨꾧텒 ?먯옣 愿由?
+?μ쇅梨꾧텒 留ㅼ닔/留ㅻ룄 嫄곕옒 ?뺤젙
+?몃? 利앷텒??嫄곕옒 ?붿껌 ?섏떊
+KOFIA 蹂닿퀬 ?붿껌 ?앹꽦
+KSD 寃곗젣 ?붿껌 ?앹꽦
+????묒뾽 ?앹꽦
+誘쇱썝 ?묒닔 諛?泥섎━
+?댁쁺???ъ쿂由?command
+媛먯궗濡쒓렇 湲곕줉
 ```
 
 Forbidden:
 
 ```text
-KSD-Sim DB 직접 조회/수정 금지
-KOFIA-Sim DB 직접 조회/수정 금지
-FSS-Sim DB 직접 조회/수정 금지
-ledger posting 수정/삭제 금지
-balance 직접 update 금지
-실제 금융기관 API 연동 금지
+KSD-Sim DB 吏곸젒 議고쉶/?섏젙 湲덉?
+KOFIA-Sim DB 吏곸젒 議고쉶/?섏젙 湲덉?
+FSS-Sim DB 吏곸젒 議고쉶/?섏젙 湲덉?
+ledger posting ?섏젙/??젣 湲덉?
+balance 吏곸젒 update 湲덉?
+?ㅼ젣 湲덉쑖湲곌? API ?곕룞 湲덉?
 ```
 
-### 4.2 external-broker-app
+### 4.2 external-broker-app (optional)
 
-외부 증권사 시뮬레이터입니다.
+?몃? 利앷텒???쒕??덉씠?곗엯?덈떎.
 
-실제 외부 증권사가 STBase로 채권 거래를 요청하는 상황을 재현합니다.
+?ㅼ젣 ?몃? 利앷텒?ш? STBase濡?梨꾧텒 嫄곕옒瑜??붿껌?섎뒗 ?곹솴???ы쁽?⑸땲??
 
 Responsibilities:
 
 ```text
-외부 증권사 계정 시뮬레이션
-장외채권 매수/매도 요청 생성
-거래 상태 조회
-결제 상태 조회
-보고 상태 조회
-민원 또는 정정 요청 생성
-중복 요청/지연 요청/오류 요청 시뮬레이션
+?몃? 利앷텒??怨꾩젙 ?쒕??덉씠??
+?μ쇅梨꾧텒 留ㅼ닔/留ㅻ룄 ?붿껌 ?앹꽦
+嫄곕옒 ?곹깭 議고쉶
+寃곗젣 ?곹깭 議고쉶
+蹂닿퀬 ?곹깭 議고쉶
+誘쇱썝 ?먮뒗 ?뺤젙 ?붿껌 ?앹꽦
+以묐났 ?붿껌/吏???붿껌/?ㅻ쪟 ?붿껌 ?쒕??덉씠??
 ```
 
 Rule:
 
 ```text
-external-broker-app은 powerbase-app의 DB를 절대 직접 보지 않는다.
-모든 요청은 공개 API로만 수행한다.
+external-broker-app (optional)? stbase-app??DB瑜??덈? 吏곸젒 蹂댁? ?딅뒗??
+紐⑤뱺 ?붿껌? 怨듦컻 API濡쒕쭔 ?섑뻾?쒕떎.
 ```
 
 ### 4.3 freebond-app
 
-장외채권 호가, 협의, 딜 후보 생성을 담당합니다.
+?μ쇅梨꾧텒 ?멸?, ?묒쓽, ???꾨낫 ?앹꽦???대떦?⑸땲??
 
 Responsibilities:
 
 ```text
-장외채권 호가 게시
-딜러 간 협의
-메신저 스타일 협의 로그
-거래 조건 합의
-OtcBondDealAgreement 생성
-PowerBase 거래입력 요청
+?μ쇅梨꾧텒 ?멸? 寃뚯떆
+?쒕윭 媛??묒쓽
+硫붿떊? ?ㅽ????묒쓽 濡쒓렇
+嫄곕옒 議곌굔 ?⑹쓽
+OtcBondDealAgreement ?앹꽦
+STBase-App 嫄곕옒?낅젰 ?붿껌
 ```
 
 Rule:
 
 ```text
-freebond-app은 원장을 수정하지 않는다.
-freebond-app은 최종 결제를 처리하지 않는다.
+freebond-app? ?먯옣???섏젙?섏? ?딅뒗??
+freebond-app? 理쒖쥌 寃곗젣瑜?泥섎━?섏? ?딅뒗??
 ```
 
 ### 4.4 ksd-app
 
-예탁결제원 시뮬레이터입니다.
+?덊긽寃곗젣???쒕??덉씠?곗엯?덈떎.
 
 Responsibilities:
 
 ```text
-참가기관 계좌 관리
-증권사 단위 채권 총량 관리
-계좌대체
-DVP 결제
-결제 승인/거절/지연 시뮬레이션
-권리관리 이벤트
-대사 자료 제공
+李멸?湲곌? 怨꾩쥖 愿由?
+利앷텒???⑥쐞 梨꾧텒 珥앸웾 愿由?
+怨꾩쥖?泥?
+DVP 寃곗젣
+寃곗젣 ?뱀씤/嫄곗젅/吏???쒕??덉씠??
+沅뚮━愿由??대깽??
+????먮즺 ?쒓났
 ```
 
 Rule:
 
 ```text
-ksd-app은 고객별 내부 원장을 관리하지 않는다.
-ksd-app은 증권사/참가기관 단위 총량만 관리한다.
+ksd-app? 怨좉컼蹂??대? ?먯옣??愿由ы븯吏 ?딅뒗??
+ksd-app? 利앷텒??李멸?湲곌? ?⑥쐞 珥앸웾留?愿由ы븳??
 ```
 
 ### 4.5 kofia-app
 
-금융투자협회 장외채권 보고/공시 시뮬레이터입니다.
+湲덉쑖?ъ옄?묓쉶 ?μ쇅梨꾧텒 蹂닿퀬/怨듭떆 ?쒕??덉씠?곗엯?덈떎.
 
 Responsibilities:
 
 ```text
-장외채권 거래보고 수신
-보고 승인/반려
-보고 지연 감지
-호가/매매정보 공시
-수익률 통계
-거래량 통계
-보고 오류 이벤트 생성
+?μ쇅梨꾧텒 嫄곕옒蹂닿퀬 ?섏떊
+蹂닿퀬 ?뱀씤/諛섎젮
+蹂닿퀬 吏??媛먯?
+?멸?/留ㅻℓ?뺣낫 怨듭떆
+?섏씡瑜??듦퀎
+嫄곕옒???듦퀎
+蹂닿퀬 ?ㅻ쪟 ?대깽???앹꽦
 ```
 
 Rule:
 
 ```text
-보고 실패는 거래 실패와 별도 상태로 관리한다.
-보고 반려가 발생해도 원장 posting을 자동 취소하지 않는다.
+蹂닿퀬 ?ㅽ뙣??嫄곕옒 ?ㅽ뙣? 蹂꾨룄 ?곹깭濡?愿由ы븳??
+蹂닿퀬 諛섎젮媛 諛쒖깮?대룄 ?먯옣 posting???먮룞 痍⑥냼?섏? ?딅뒗??
 ```
 
 ### 4.6 fss-app
 
-금융감독원/감독/민원 시뮬레이터입니다.
+湲덉쑖媛먮룆??媛먮룆/誘쇱썝 ?쒕??덉씠?곗엯?덈떎.
 
 Responsibilities:
 
 ```text
-민원 접수
-민원 이관
-자료제출 요청
-검사 이벤트 생성
-투자자보호 점검
-불완전판매 의심 점검
-내부통제 위반 점검
-제재 이벤트 시뮬레이션
+誘쇱썝 ?묒닔
+誘쇱썝 ?닿?
+?먮즺?쒖텧 ?붿껌
+寃???대깽???앹꽦
+?ъ옄?먮낫???먭?
+遺덉셿?꾪뙋留??섏떖 ?먭?
+?대??듭젣 ?꾨컲 ?먭?
+?쒖옱 ?대깽???쒕??덉씠??
 ```
 
 Rule:
 
 ```text
-fss-app은 주문을 체결하지 않는다.
-fss-app은 결제를 처리하지 않는다.
-fss-app은 거래 플로우 중간에 직접 개입하지 않는다.
+fss-app? 二쇰Ц??泥닿껐?섏? ?딅뒗??
+fss-app? 寃곗젣瑜?泥섎━?섏? ?딅뒗??
+fss-app? 嫄곕옒 ?뚮줈??以묎컙??吏곸젒 媛쒖엯?섏? ?딅뒗??
 ```
 
 ### 4.7 admin-app
 
-운영자 콘솔 API입니다.
+?댁쁺??肄섏넄 API?낅땲??
 
 Responsibilities:
 
 ```text
-거래 상태 조회
-결제 상태 조회
-보고 상태 조회
-대사 break 조회
-민원 처리
-outbox 재처리
-external message 재전송
-운영자 correction command 실행
-감사로그 조회
+嫄곕옒 ?곹깭 議고쉶
+寃곗젣 ?곹깭 議고쉶
+蹂닿퀬 ?곹깭 議고쉶
+???break 議고쉶
+誘쇱썝 泥섎━
+outbox ?ъ쿂由?
+external message ?ъ쟾??
+?댁쁺??correction command ?ㅽ뻾
+媛먯궗濡쒓렇 議고쉶
 ```
 
 Forbidden:
 
 ```text
-DB 직접 수정 API 금지
-ledger posting 직접 수정/삭제 API 금지
-잔고 직접 보정 API 금지
+DB 吏곸젒 ?섏젙 API 湲덉?
+ledger posting 吏곸젒 ?섏젙/??젣 API 湲덉?
+?붽퀬 吏곸젒 蹂댁젙 API 湲덉?
 ```
 
 ### 4.8 bond-exchange-app
 
-장내채권 거래소 시뮬레이터입니다.
+?λ궡梨꾧텒 嫄곕옒???쒕??덉씠?곗엯?덈떎.
 
-초기 MVP 이후 구현합니다.
+珥덇린 MVP ?댄썑 援ы쁽?⑸땲??
 
 Responsibilities:
 
 ```text
-장내채권 시장 세션
-채권 호가 접수
-단순 호가장
-단순 매칭
-체결 결과 통보
-청산 원천 데이터 생성
+?λ궡梨꾧텒 ?쒖옣 ?몄뀡
+梨꾧텒 ?멸? ?묒닔
+?⑥닚 ?멸???
+?⑥닚 留ㅼ묶
+泥닿껐 寃곌낵 ?듬낫
+泥?궛 ?먯쿇 ?곗씠???앹꽦
 ```
 
 Rule:
 
 ```text
-초기 장외채권 MVP 완료 전까지 구현하지 않는다.
+珥덇린 ?μ쇅梨꾧텒 MVP ?꾨즺 ?꾧퉴吏 援ы쁽?섏? ?딅뒗??
 ```
 
 ---
 
-## 5. 공통 라이브러리 구성
+## 5. 怨듯넻 ?쇱씠釉뚮윭由?援ъ꽦
 
 ### 5.1 stbase-common
 
-모든 앱이 공유할 수 있는 순수 공통 타입입니다.
+紐⑤뱺 ?깆씠 怨듭쑀?????덈뒗 ?쒖닔 怨듯넻 ??낆엯?덈떎.
 
 Allowed:
 
@@ -361,16 +361,16 @@ ApiResponse
 Forbidden:
 
 ```text
-특정 앱의 Entity
-특정 앱의 Repository
-특정 앱의 Service
+?뱀젙 ?깆쓽 Entity
+?뱀젙 ?깆쓽 Repository
+?뱀젙 ?깆쓽 Service
 Spring Web Controller
 JPA Entity
 ```
 
 ### 5.2 stbase-api-contracts
 
-앱 간 API 요청/응답 DTO를 둡니다.
+??媛?API ?붿껌/?묐떟 DTO瑜??〓땲??
 
 Examples:
 
@@ -380,20 +380,20 @@ KsdDvpSettlementResponse
 KofiaOtcBondReportRequest
 KofiaOtcBondReportResponse
 FssComplaintSubmissionRequest
-PowerbaseOtcBondTradeRequest
+StbaseOtcBondTradeRequest
 ExternalBrokerTradeStatusResponse
 ```
 
 Rule:
 
 ```text
-api-contracts에는 비즈니스 로직을 넣지 않는다.
-DTO, enum, error code, API schema만 둔다.
+api-contracts?먮뒗 鍮꾩쫰?덉뒪 濡쒖쭅???ｌ? ?딅뒗??
+DTO, enum, error code, API schema留??붾떎.
 ```
 
 ### 5.3 stbase-test-fixtures
 
-통합 테스트용 fixture를 둡니다.
+?듯빀 ?뚯뒪?몄슜 fixture瑜??〓땲??
 
 Examples:
 
@@ -408,28 +408,28 @@ SampleComplaints
 
 ---
 
-## 6. 통신 원칙
+## 6. ?듭떊 ?먯튃
 
-모든 앱 간 상태 변경 API는 다음 헤더를 요구합니다.
+紐⑤뱺 ??媛??곹깭 蹂寃?API???ㅼ쓬 ?ㅻ뜑瑜??붽뎄?⑸땲??
 
 ```http
 X-Correlation-Id: CORR-20260514-000001
 X-Idempotency-Key: IDEMP-20260514-000001
-X-Source-System: POWERBASE
+X-Source-System: STBASE
 ```
 
-모든 command API는 다음을 만족해야 합니다.
+紐⑤뱺 command API???ㅼ쓬??留뚯”?댁빞 ?⑸땲??
 
 ```text
-idempotency key 필수
-correlation id 필수
-external message log 기록
-실패 응답도 저장
-재처리 가능 상태 저장
-중복 요청 안전
+idempotency key ?꾩닔
+correlation id ?꾩닔
+external message log 湲곕줉
+?ㅽ뙣 ?묐떟?????
+?ъ쿂由?媛???곹깭 ???
+以묐났 ?붿껌 ?덉쟾
 ```
 
-API 응답 형식:
+API ?묐떟 ?뺤떇:
 
 ```json
 {
@@ -440,7 +440,7 @@ API 응답 형식:
 }
 ```
 
-오류 응답 형식:
+?ㅻ쪟 ?묐떟 ?뺤떇:
 
 ```json
 {
@@ -454,115 +454,115 @@ API 응답 형식:
 
 ---
 
-## 7. 핵심 데이터 원칙
+## 7. ?듭떖 ?곗씠???먯튃
 
-### 7.1 Ledger가 원천이다
+### 7.1 Ledger媛 ?먯쿇?대떎
 
 ```text
 LedgerPosting is source of truth.
 BalanceSnapshot is projection.
 ```
 
-금지:
+湲덉?:
 
 ```java
 balance.setCash(balance.getCash().subtract(amount));
 accountBalanceRepository.save(balance);
 ```
 
-필수:
+?꾩닔:
 
 ```text
-LedgerJournal 생성
-LedgerPosting 생성
-BalanceProjection 갱신
-AuditLog 기록
+LedgerJournal ?앹꽦
+LedgerPosting ?앹꽦
+BalanceProjection 媛깆떊
+AuditLog 湲곕줉
 ```
 
-### 7.2 Posting은 불변이다
+### 7.2 Posting? 遺덈??대떎
 
 ```text
-posting update 금지
-posting delete 금지
-오류는 reversal posting
-보정은 correction posting
+posting update 湲덉?
+posting delete 湲덉?
+?ㅻ쪟??reversal posting
+蹂댁젙? correction posting
 ```
 
-### 7.3 외부기관은 DB로 연결하지 않는다
+### 7.3 ?몃?湲곌?? DB濡??곌껐?섏? ?딅뒗??
 
-금지:
+湲덉?:
 
 ```text
-powerbase-app이 ksd-app DB 조회
-powerbase-app이 kofia-app DB 조회
-admin-app이 각 앱 DB를 직접 수정
+stbase-app??ksd-app DB 議고쉶
+stbase-app??kofia-app DB 議고쉶
+admin-app??媛???DB瑜?吏곸젒 ?섏젙
 ```
 
-허용:
+?덉슜:
 
 ```text
-공개 API 호출
-read-only status API 호출
-external message log 조회 API
-대사 전용 export API
-```
-
----
-
-## 8. 장외채권 MVP 흐름
-
-첫 번째 MVP는 아래 흐름 하나를 끝까지 완성합니다.
-
-```text
-[1] external-broker-app 또는 retail 요청자가 장외채권 매수 요청
-[2] powerbase-app이 고객/계좌/적합성/현금/상품위험도 검증
-[3] powerbase-app이 채권 재고를 조건부 예약
-[4] powerbase-app이 OTC Bond Trade 생성
-[5] powerbase-app이 pending ledger posting 생성
-[6] powerbase-app이 KOFIA 보고 outbox event 생성
-[7] powerbase-app이 KSD 결제 outbox event 생성
-[8] outbox relay가 kofia-app에 거래보고 API 호출
-[9] outbox relay가 ksd-app에 DVP 또는 계좌대체 API 호출
-[10] kofia-app은 보고 승인/반려/지연 중 하나를 응답
-[11] ksd-app은 결제 완료/거절/지연 중 하나를 응답
-[12] powerbase-app이 결과에 따라 원장 확정 또는 실패 상태 보존
-[13] reconciliation job이 PowerBase 잔고와 KSD 총량 대사
-[14] 고객 민원이 들어오면 complaint workflow 시작
-[15] 운영자는 admin-app에서 거래/보고/결제/원장/대사/감사로그를 추적
-```
-
-MVP 성공 기준:
-
-```text
-거래 생성 가능
-pending posting 생성 가능
-KOFIA 보고 성공/실패 시뮬레이션 가능
-KSD 결제 성공/실패 시뮬레이션 가능
-결제 성공 시 원장 확정 가능
-결제 실패 시 재처리 가능
-중복 요청 시 중복 posting 없음
-대사 break 생성 가능
-민원 접수 후 거래 추적 가능
-운영자 재처리 audit log 기록 가능
+怨듦컻 API ?몄텧
+read-only status API ?몄텧
+external message log 議고쉶 API
+????꾩슜 export API
 ```
 
 ---
 
-## 9. 민원/감독 시뮬레이션
+## 8. ?μ쇅梨꾧텒 MVP ?먮쫫
 
-민원은 단순 게시판이 아닙니다.
-
-민원은 거래, 원장, 보고, 결제, 대사, 운영행위 추적과 연결되어야 합니다.
-
-### 9.1 민원 예시
+泥?踰덉㎏ MVP???꾨옒 ?먮쫫 ?섎굹瑜??앷퉴吏 ?꾩꽦?⑸땲??
 
 ```text
-채권 매수했는데 잔고에 안 보인다
-결제 완료라고 했는데 현금이 이상하다
-장외채권 수익률 안내와 실제 체결 조건이 다르다
-매수 취소 요청이 반영되지 않았다
-KOFIA 보고가 반려됐는데 고객에게 안내되지 않았다
-이자 지급일이 지났는데 입금이 안 됐다
+[1] external-broker-app (optional) ?먮뒗 retail ?붿껌?먭? ?μ쇅梨꾧텒 留ㅼ닔 ?붿껌
+[2] stbase-app??怨좉컼/怨꾩쥖/?곹빀???꾧툑/?곹뭹?꾪뿕??寃利?
+[3] stbase-app??梨꾧텒 ?ш퀬瑜?議곌굔遺 ?덉빟
+[4] stbase-app??OTC Bond Trade ?앹꽦
+[5] stbase-app??pending ledger posting ?앹꽦
+[6] stbase-app??KOFIA 蹂닿퀬 outbox event ?앹꽦
+[7] stbase-app??KSD 寃곗젣 outbox event ?앹꽦
+[8] outbox relay媛 kofia-app??嫄곕옒蹂닿퀬 API ?몄텧
+[9] outbox relay媛 ksd-app??DVP ?먮뒗 怨꾩쥖?泥?API ?몄텧
+[10] kofia-app? 蹂닿퀬 ?뱀씤/諛섎젮/吏??以??섎굹瑜??묐떟
+[11] ksd-app? 寃곗젣 ?꾨즺/嫄곗젅/吏??以??섎굹瑜??묐떟
+[12] stbase-app??寃곌낵???곕씪 ?먯옣 ?뺤젙 ?먮뒗 ?ㅽ뙣 ?곹깭 蹂댁〈
+[13] reconciliation job??STBase-App ?붽퀬? KSD 珥앸웾 ???
+[14] 怨좉컼 誘쇱썝???ㅼ뼱?ㅻ㈃ complaint workflow ?쒖옉
+[15] ?댁쁺?먮뒗 admin-app?먯꽌 嫄곕옒/蹂닿퀬/寃곗젣/?먯옣/???媛먯궗濡쒓렇瑜?異붿쟻
+```
+
+MVP ?깃났 湲곗?:
+
+```text
+嫄곕옒 ?앹꽦 媛??
+pending posting ?앹꽦 媛??
+KOFIA 蹂닿퀬 ?깃났/?ㅽ뙣 ?쒕??덉씠??媛??
+KSD 寃곗젣 ?깃났/?ㅽ뙣 ?쒕??덉씠??媛??
+寃곗젣 ?깃났 ???먯옣 ?뺤젙 媛??
+寃곗젣 ?ㅽ뙣 ???ъ쿂由?媛??
+以묐났 ?붿껌 ??以묐났 posting ?놁쓬
+???break ?앹꽦 媛??
+誘쇱썝 ?묒닔 ??嫄곕옒 異붿쟻 媛??
+?댁쁺???ъ쿂由?audit log 湲곕줉 媛??
+```
+
+---
+
+## 9. 誘쇱썝/媛먮룆 ?쒕??덉씠??
+
+誘쇱썝? ?⑥닚 寃뚯떆?먯씠 ?꾨떃?덈떎.
+
+誘쇱썝? 嫄곕옒, ?먯옣, 蹂닿퀬, 寃곗젣, ??? ?댁쁺?됱쐞 異붿쟻怨??곌껐?섏뼱???⑸땲??
+
+### 9.1 誘쇱썝 ?덉떆
+
+```text
+梨꾧텒 留ㅼ닔?덈뒗???붽퀬????蹂댁씤??
+寃곗젣 ?꾨즺?쇨퀬 ?덈뒗???꾧툑???댁긽?섎떎
+?μ쇅梨꾧텒 ?섏씡瑜??덈궡? ?ㅼ젣 泥닿껐 議곌굔???ㅻⅤ??
+留ㅼ닔 痍⑥냼 ?붿껌??諛섏쁺?섏? ?딆븯??
+KOFIA 蹂닿퀬媛 諛섎젮?먮뒗??怨좉컼?먭쾶 ?덈궡?섏? ?딆븯??
+?댁옄 吏湲됱씪??吏?щ뒗???낃툑?????먮떎
 ```
 
 ### 9.2 complaint workflow
@@ -579,7 +579,7 @@ CLOSED
 ESCALATED_TO_FSS
 ```
 
-### 9.3 민원 처리 시 조회해야 할 증적
+### 9.3 誘쇱썝 泥섎━ ??議고쉶?댁빞 ??利앹쟻
 
 ```text
 trade
@@ -594,9 +594,9 @@ reconciliation_break
 operator_audit_log
 ```
 
-### 9.4 FSS-Sim 연계
+### 9.4 FSS-Sim ?곌퀎
 
-FSS-Sim은 다음 API를 제공할 수 있습니다.
+FSS-Sim? ?ㅼ쓬 API瑜??쒓났?????덉뒿?덈떎.
 
 ```text
 POST /api/fss/complaints
@@ -605,26 +605,26 @@ POST /api/fss/inspection-events
 GET  /api/fss/complaints/{complaintId}
 ```
 
-FSS-Sim은 거래를 직접 취소하거나 원장을 수정하지 않습니다.
+FSS-Sim? 嫄곕옒瑜?吏곸젒 痍⑥냼?섍굅???먯옣???섏젙?섏? ?딆뒿?덈떎.
 
 ---
 
-## 10. 권장 API 목록
+## 10. 沅뚯옣 API 紐⑸줉
 
-### 10.1 powerbase-app
+### 10.1 stbase-app
 
 ```text
-POST /api/powerbase/otc-bond-trades
-GET  /api/powerbase/otc-bond-trades/{tradeId}
-GET  /api/powerbase/accounts/{accountId}/balances
-GET  /api/powerbase/accounts/{accountId}/ledger-postings
-POST /api/powerbase/complaints
-GET  /api/powerbase/complaints/{complaintId}
-POST /api/powerbase/operations/retry-outbox/{outboxEventId}
-POST /api/powerbase/operations/corrections
+POST /api/stbase/otc-bond-trades
+GET  /api/stbase/otc-bond-trades/{tradeId}
+GET  /api/stbase/accounts/{accountId}/balances
+GET  /api/stbase/accounts/{accountId}/ledger-postings
+POST /api/stbase/complaints
+GET  /api/stbase/complaints/{complaintId}
+POST /api/stbase/operations/retry-outbox/{outboxEventId}
+POST /api/stbase/operations/corrections
 ```
 
-### 10.2 external-broker-app
+### 10.2 external-broker-app (optional)
 
 ```text
 POST /api/external-broker/otc-bond-orders
@@ -686,7 +686,7 @@ GET  /api/admin/audit-logs
 
 ---
 
-## 11. 상태 모델
+## 11. ?곹깭 紐⑤뜽
 
 ### 11.1 OtcBondTradeStatus
 
@@ -740,85 +740,85 @@ RESOLVED
 
 ---
 
-## 12. 테스트 우선순위
+## 12. ?뚯뒪???곗꽑?쒖쐞
 
-AI는 다음 테스트를 우선 구현합니다.
+AI???ㅼ쓬 ?뚯뒪?몃? ?곗꽑 援ы쁽?⑸땲??
 
 ```text
-1. 같은 idempotency key로 장외채권 거래를 두 번 요청해도 거래는 하나만 생성된다.
-2. 같은 idempotency key와 다른 payload가 오면 거절된다.
-3. 장외채권 재고는 동시 요청에서도 oversell 되지 않는다.
-4. pending ledger posting 없이 KSD 결제를 요청할 수 없다.
-5. KSD 결제 성공 전에는 settled balance가 증가하지 않는다.
-6. KSD 결제 성공 후 ledger finalize가 한 번만 수행된다.
-7. KOFIA 보고 실패는 거래 자체를 자동 취소하지 않는다.
-8. KSD 결제 실패는 retryable 상태로 남는다.
-9. 중복 KSD 완료 응답은 중복 ledger posting을 만들지 않는다.
-10. PowerBase 고객별 채권 합산과 KSD 참가기관 총량 불일치가 대사 break로 생성된다.
-11. 민원 조회 화면에서 trade, ledger, KSD, KOFIA, external message log를 연결해서 볼 수 있다.
-12. 운영자 재처리는 audit log를 남긴다.
-13. 운영자 correction은 기존 posting을 수정하지 않고 correction posting을 만든다.
-14. FSS-Sim은 거래/결제 상태를 직접 변경할 수 없다.
-15. external-broker-app은 powerbase DB에 접근하지 않고 API로만 거래한다.
+1. 媛숈? idempotency key濡??μ쇅梨꾧텒 嫄곕옒瑜???踰??붿껌?대룄 嫄곕옒???섎굹留??앹꽦?쒕떎.
+2. 媛숈? idempotency key? ?ㅻⅨ payload媛 ?ㅻ㈃ 嫄곗젅?쒕떎.
+3. ?μ쇅梨꾧텒 ?ш퀬???숈떆 ?붿껌?먯꽌??oversell ?섏? ?딅뒗??
+4. pending ledger posting ?놁씠 KSD 寃곗젣瑜??붿껌?????녿떎.
+5. KSD 寃곗젣 ?깃났 ?꾩뿉??settled balance媛 利앷??섏? ?딅뒗??
+6. KSD 寃곗젣 ?깃났 ??ledger finalize媛 ??踰덈쭔 ?섑뻾?쒕떎.
+7. KOFIA 蹂닿퀬 ?ㅽ뙣??嫄곕옒 ?먯껜瑜??먮룞 痍⑥냼?섏? ?딅뒗??
+8. KSD 寃곗젣 ?ㅽ뙣??retryable ?곹깭濡??⑤뒗??
+9. 以묐났 KSD ?꾨즺 ?묐떟? 以묐났 ledger posting??留뚮뱾吏 ?딅뒗??
+10. STBase-App 怨좉컼蹂?梨꾧텒 ?⑹궛怨?KSD 李멸?湲곌? 珥앸웾 遺덉씪移섍? ???break濡??앹꽦?쒕떎.
+11. 誘쇱썝 議고쉶 ?붾㈃?먯꽌 trade, ledger, KSD, KOFIA, external message log瑜??곌껐?댁꽌 蹂????덈떎.
+12. ?댁쁺???ъ쿂由щ뒗 audit log瑜??④릿??
+13. ?댁쁺??correction? 湲곗〈 posting???섏젙?섏? ?딄퀬 correction posting??留뚮뱺??
+14. FSS-Sim? 嫄곕옒/寃곗젣 ?곹깭瑜?吏곸젒 蹂寃쏀븷 ???녿떎.
+15. external-broker-app (optional)? stbase-app DB???묎렐?섏? ?딄퀬 API濡쒕쭔 嫄곕옒?쒕떎.
 ```
 
 ---
 
-## 13. AI 구현 규칙
+## 13. AI 援ы쁽 洹쒖튃
 
-AI가 코드를 수정할 때는 다음 순서를 따릅니다.
+AI媛 肄붾뱶瑜??섏젙???뚮뒗 ?ㅼ쓬 ?쒖꽌瑜??곕쫭?덈떎.
 
 ```text
-1. 이 문서를 먼저 읽는다.
-2. 구현 대상 앱을 하나로 정한다.
-3. 해당 앱의 책임과 금지사항을 확인한다.
-4. API 계약이 필요한 경우 stbase-api-contracts에 DTO를 먼저 추가한다.
-5. 상태 변경 API에는 idempotency key를 적용한다.
-6. 외부 앱 호출은 outbox event로 기록한다.
-7. 외부 호출 결과는 external message log로 기록한다.
-8. 원장 영향이 있으면 ledger journal/posting으로 처리한다.
-9. 직접 balance update를 작성하지 않는다.
-10. 실패 상태와 재처리 경로를 추가한다.
-11. 테스트를 추가한다.
-12. 문서를 갱신한다.
+1. ??臾몄꽌瑜?癒쇱? ?쎈뒗??
+2. 援ы쁽 ????깆쓣 ?섎굹濡??뺥븳??
+3. ?대떦 ?깆쓽 梨낆엫怨?湲덉??ы빆???뺤씤?쒕떎.
+4. API 怨꾩빟???꾩슂??寃쎌슦 stbase-api-contracts??DTO瑜?癒쇱? 異붽??쒕떎.
+5. ?곹깭 蹂寃?API?먮뒗 idempotency key瑜??곸슜?쒕떎.
+6. ?몃? ???몄텧? outbox event濡?湲곕줉?쒕떎.
+7. ?몃? ?몄텧 寃곌낵??external message log濡?湲곕줉?쒕떎.
+8. ?먯옣 ?곹뼢???덉쑝硫?ledger journal/posting?쇰줈 泥섎━?쒕떎.
+9. 吏곸젒 balance update瑜??묒꽦?섏? ?딅뒗??
+10. ?ㅽ뙣 ?곹깭? ?ъ쿂由?寃쎈줈瑜?異붽??쒕떎.
+11. ?뚯뒪?몃? 異붽??쒕떎.
+12. 臾몄꽌瑜?媛깆떊?쒕떎.
 ```
 
-AI가 절대 하면 안 되는 것:
+AI媛 ?덈? ?섎㈃ ???섎뒗 寃?
 
 ```text
-실제 금융기관 API 연동 코드 작성
-실제 API key/secret/cert 구조 작성
-cross-app DB 접근
+?ㅼ젣 湲덉쑖湲곌? API ?곕룞 肄붾뱶 ?묒꽦
+?ㅼ젣 API key/secret/cert 援ъ“ ?묒꽦
+cross-app DB ?묎렐
 ledger posting update/delete
-balance 직접 update
-보고 실패를 조용히 무시
-결제 실패를 성공처럼 처리
-민원 처리에서 증적 없이 상태만 종료
+balance 吏곸젒 update
+蹂닿퀬 ?ㅽ뙣瑜?議곗슜??臾댁떆
+寃곗젣 ?ㅽ뙣瑜??깃났泥섎읆 泥섎━
+誘쇱썝 泥섎━?먯꽌 利앹쟻 ?놁씠 ?곹깭留?醫낅즺
 ```
 
 ---
 
-## 14. 구현 순서
+## 14. 援ы쁽 ?쒖꽌
 
 ### Phase 1 - Foundation
 
 ```text
-Gradle multi-project 생성
-stbase-common 생성
-stbase-api-contracts 생성
-powerbase-app 생성
-기본 ApiResponse/ErrorCode/TraceId 구성
-idempotency 저장소
-audit log 저장소
-ledger journal/posting 기본 모델
+Gradle multi-project ?앹꽦
+stbase-common ?앹꽦
+stbase-api-contracts ?앹꽦
+stbase-app ?앹꽦
+湲곕낯 ApiResponse/ErrorCode/TraceId 援ъ꽦
+idempotency ??μ냼
+audit log ??μ냼
+ledger journal/posting 湲곕낯 紐⑤뜽
 ```
 
 ### Phase 2 - OTC Bond Trade MVP
 
 ```text
-member/account/bond/product 모델
-채권 재고 모델
-장외채권 매수 command
+member/account/bond/product 紐⑤뜽
+梨꾧텒 ?ш퀬 紐⑤뜽
+?μ쇅梨꾧텒 留ㅼ닔 command
 pending ledger posting
 idempotency test
 inventory concurrency test
@@ -827,81 +827,83 @@ inventory concurrency test
 ### Phase 3 - KOFIA/KSD API Simulators
 
 ```text
-kofia-app 생성
-ksd-app 생성
-KOFIA 보고 API
-KSD 계좌대체/DVP API
+kofia-app ?앹꽦
+ksd-app ?앹꽦
+KOFIA 蹂닿퀬 API
+KSD 怨꾩쥖?泥?DVP API
 outbox relay
 external message log
-보고 실패/결제 실패 시나리오
+蹂닿퀬 ?ㅽ뙣/寃곗젣 ?ㅽ뙣 ?쒕굹由ъ삤
 ```
 
 ### Phase 4 - Ledger Finalization and Reconciliation
 
 ```text
-KSD 결제 완료 반영
+KSD 寃곗젣 ?꾨즺 諛섏쁺
 ledger finalize
 balance projection
-PowerBase vs KSD 대사
+STBase-App vs KSD ???
 reconciliation break
-운영자 재처리
+?댁쁺???ъ쿂由?
 ```
 
 ### Phase 5 - External Broker and Complaint
 
 ```text
-external-broker-app 생성
-외부 증권사 거래 요청 API
+external-broker-app (optional) ?앹꽦
+?몃? 利앷텒??嫄곕옒 ?붿껌 API
 complaint workflow
-FSS-Sim 민원/자료제출 API
+FSS-Sim 誘쇱썝/?먮즺?쒖텧 API
 admin timeline API
 ```
 
 ### Phase 6 - FreeBond
 
 ```text
-freebond-app 생성
-호가 게시
-협의 로그
+freebond-app ?앹꽦
+?멸? 寃뚯떆
+?묒쓽 濡쒓렇
 deal agreement
-PowerBase 거래입력 연계
+STBase-App 嫄곕옒?낅젰 ?곌퀎
 ```
 
 ### Phase 7 - Bond Exchange
 
 ```text
-bond-exchange-app 생성
-장내채권 시장 세션
-단순 호가 접수
-단순 매칭
-체결 결과 통보
-청산/결제 연계
+bond-exchange-app ?앹꽦
+?λ궡梨꾧텒 ?쒖옣 ?몄뀡
+?⑥닚 ?멸? ?묒닔
+?⑥닚 留ㅼ묶
+泥닿껐 寃곌낵 ?듬낫
+泥?궛/寃곗젣 ?곌퀎
 ```
 
 ---
 
-## 15. 첫 번째 완성 시나리오
+## 15. 泥?踰덉㎏ ?꾩꽦 ?쒕굹由ъ삤
 
-AI는 프로젝트 초기 구현에서 아래 시나리오를 최우선으로 완성합니다.
+AI???꾨줈?앺듃 珥덇린 援ы쁽?먯꽌 ?꾨옒 ?쒕굹由ъ삤瑜?理쒖슦?좎쑝濡??꾩꽦?⑸땲??
 
 ```text
-외부 증권사가 장외채권 매수 요청을 보낸다.
-PowerBase가 계좌와 재고를 검증한다.
-PowerBase가 pending ledger posting을 만든다.
-PowerBase가 KOFIA 보고와 KSD 결제 outbox를 만든다.
-KOFIA 보고는 성공한다.
-KSD 결제는 성공한다.
-PowerBase가 ledger를 finalize 한다.
-대사가 MATCHED 된다.
-고객이 민원을 넣는다.
-운영자가 admin timeline에서 거래, 원장, 보고, 결제, 대사, 감사로그를 확인한다.
-운영자가 답변을 작성하고 민원을 종료한다.
+?몃? 利앷텒?ш? ?μ쇅梨꾧텒 留ㅼ닔 ?붿껌??蹂대궦??
+STBase-App媛 怨꾩쥖? ?ш퀬瑜?寃利앺븳??
+STBase-App媛 pending ledger posting??留뚮뱺??
+STBase-App媛 KOFIA 蹂닿퀬? KSD 寃곗젣 outbox瑜?留뚮뱺??
+KOFIA 蹂닿퀬???깃났?쒕떎.
+KSD 寃곗젣???깃났?쒕떎.
+STBase-App媛 ledger瑜?finalize ?쒕떎.
+??ш? MATCHED ?쒕떎.
+怨좉컼??誘쇱썝???ｋ뒗??
+?댁쁺?먭? admin timeline?먯꽌 嫄곕옒, ?먯옣, 蹂닿퀬, 寃곗젣, ??? 媛먯궗濡쒓렇瑜??뺤씤?쒕떎.
+?댁쁺?먭? ?듬????묒꽦?섍퀬 誘쇱썝??醫낅즺?쒕떎.
 ```
 
-이 시나리오가 완성되면 STBase는 단순 CRUD가 아니라 실제 증권업무 흐름을 학습할 수 있는 시뮬레이터가 됩니다.
+???쒕굹由ъ삤媛 ?꾩꽦?섎㈃ STBase???⑥닚 CRUD媛 ?꾨땲???ㅼ젣 利앷텒?낅Т ?먮쫫???숈뒿?????덈뒗 ?쒕??덉씠?곌? ?⑸땲??
 
 ---
 
-## 16. 한 줄 요약
+## 16. ??以??붿빟
 
-STBase는 장외채권 거래를 시작점으로, PowerBase 업무계와 KSD/KOFIA/FSS/FreeBond/외부증권사 시뮬레이터를 별도 API 서버로 실행하여 원장, 결제, 보고, 대사, 민원, 운영 재처리까지 재현하는 학습용 분산 증권업무 시뮬레이터입니다.
+STBase???μ쇅梨꾧텒 嫄곕옒瑜??쒖옉?먯쑝濡? STBase-App ?낅Т怨꾩? KSD/KOFIA/FSS/FreeBond/?몃?利앷텒???쒕??덉씠?곕? 蹂꾨룄 API ?쒕쾭濡??ㅽ뻾?섏뿬 ?먯옣, 寃곗젣, 蹂닿퀬, ??? 誘쇱썝, ?댁쁺 ?ъ쿂由ш퉴吏 ?ы쁽?섎뒗 ?숈뒿??遺꾩궛 利앷텒?낅Т ?쒕??덉씠?곗엯?덈떎.
+
+

@@ -1,14 +1,14 @@
-# STBase AI Harness
+﻿# STBase AI Harness
 
-> 이 폴더는 AI 바이브코딩 도구가 STBase를 구현할 때 반드시 먼저 읽어야 하는 작업 하네스입니다.
+> ???대뜑??AI 諛붿씠釉뚯퐫???꾧뎄媛 STBase瑜?援ы쁽????諛섎뱶??癒쇱? ?쎌뼱???섎뒗 ?묒뾽 ?섎꽕?ㅼ엯?덈떎.
 >
-> STBase는 Spring Boot, Spring Data JPA, MySQL 기반의 DDD 구조 프로젝트이며, 장외채권 거래를 시작점으로 유관기관 API 시뮬레이터와 통신하는 학습용 분산 증권업무 시스템입니다.
+> STBase??Spring Boot, Spring Data JPA, MySQL 湲곕컲??DDD 援ъ“ ?꾨줈?앺듃?대ŉ, ?μ쇅梨꾧텒 嫄곕옒瑜??쒖옉?먯쑝濡??좉?湲곌? API ?쒕??덉씠?곗? ?듭떊?섎뒗 ?숈뒿??遺꾩궛 利앷텒?낅Т ?쒖뒪?쒖엯?덈떎.
 
 ---
 
-## 1. AI 작업 시작 순서
+## 1. AI ?묒뾽 ?쒖옉 ?쒖꽌
 
-AI는 코드 작업 전에 아래 문서를 순서대로 읽습니다.
+AI??肄붾뱶 ?묒뾽 ?꾩뿉 ?꾨옒 臾몄꽌瑜??쒖꽌?濡??쎌뒿?덈떎.
 
 ```text
 1. docs/STBASE_MULTI_APP_BOND_SIMULATOR_PLAN.md
@@ -18,7 +18,7 @@ AI는 코드 작업 전에 아래 문서를 순서대로 읽습니다.
 5. ai-harness/AI_IMPLEMENTATION_CHECKLIST.md
 ```
 
-기존 개요 문서도 참고할 수 있습니다.
+湲곗〈 媛쒖슂 臾몄꽌??李멸퀬?????덉뒿?덈떎.
 
 ```text
 STBASE_README_REVISED.md
@@ -27,13 +27,13 @@ STBASE_AI_DEVELOPMENT_OVERVIEW_REVISED.md
 
 ---
 
-## 2. 프로젝트 핵심 방향
+## 2. ?꾨줈?앺듃 ?듭떖 諛⑺뼢
 
-STBase는 단일 모놀리스가 아니라 여러 Spring Boot 앱이 API로 통신하는 구조를 목표로 합니다.
+STBase???⑥씪 紐⑤?由ъ뒪媛 ?꾨땲???щ윭 Spring Boot ?깆씠 API濡??듭떊?섎뒗 援ъ“瑜?紐⑺몴濡??⑸땲??
 
 ```text
-powerbase-app
-external-broker-app
+stbase-app
+external-broker-app (optional)
 freebond-app
 ksd-app
 kofia-app
@@ -42,39 +42,39 @@ admin-app
 bond-exchange-app
 ```
 
-초기 구현은 장외채권 MVP를 먼저 완성합니다.
+珥덇린 援ы쁽? ?μ쇅梨꾧텒 MVP瑜?癒쇱? ?꾩꽦?⑸땲??
 
 ```text
-외부 증권사 장외채권 거래 요청
--> PowerBase 검증
+?몃? 利앷텒???μ쇅梨꾧텒 嫄곕옒 ?붿껌
+-> STBase-App 寃利?
 -> pending ledger posting
--> KOFIA 보고
--> KSD 결제
+-> KOFIA 蹂닿퀬
+-> KSD 寃곗젣
 -> ledger finalize
--> 대사
--> 민원 접수/처리
--> 운영자 재처리/감사로그
+-> ???
+-> 誘쇱썝 ?묒닔/泥섎━
+-> ?댁쁺???ъ쿂由?媛먯궗濡쒓렇
 ```
 
 ---
 
-## 3. 절대 원칙
+## 3. ?덈? ?먯튃
 
 ```text
-실제 금융기관 API 연동 금지
-실제 주문 가능 broker adapter 금지
-실제 API key/secret/certificate 구조 금지
-cross-app DB 접근 금지
-ledger posting update/delete 금지
-balance 직접 update 금지
-보고 실패 무시 금지
-결제 실패 은폐 금지
-민원 처리 시 증적 누락 금지
+?ㅼ젣 湲덉쑖湲곌? API ?곕룞 湲덉?
+?ㅼ젣 二쇰Ц 媛??broker adapter 湲덉?
+?ㅼ젣 API key/secret/certificate 援ъ“ 湲덉?
+cross-app DB ?묎렐 湲덉?
+ledger posting update/delete 湲덉?
+balance 吏곸젒 update 湲덉?
+蹂닿퀬 ?ㅽ뙣 臾댁떆 湲덉?
+寃곗젣 ?ㅽ뙣 ???湲덉?
+誘쇱썝 泥섎━ ??利앹쟻 ?꾨씫 湲덉?
 ```
 
 ---
 
-## 4. 기술 스택
+## 4. 湲곗닠 ?ㅽ깮
 
 ```text
 Java 17+
@@ -87,7 +87,7 @@ Testcontainers
 Docker Compose
 ```
 
-선택 확장은 나중에 도입합니다.
+?좏깮 ?뺤옣? ?섏쨷???꾩엯?⑸땲??
 
 ```text
 Redis
@@ -96,13 +96,13 @@ Prometheus/Grafana
 OpenSearch/ELK
 ```
 
-초기에는 HTTP REST + Outbox + External Message Log로 충분합니다.
+珥덇린?먮뒗 HTTP REST + Outbox + External Message Log濡?異⑸텇?⑸땲??
 
 ---
 
-## 5. 기본 코드 구조
+## 5. 湲곕낯 肄붾뱶 援ъ“
 
-각 앱의 도메인 폴더는 다음 구조를 따릅니다.
+媛??깆쓽 ?꾨찓???대뜑???ㅼ쓬 援ъ“瑜??곕쫭?덈떎.
 
 ```text
 domain-name/
@@ -123,32 +123,32 @@ domain-name/
     dto/
 ```
 
-공통 타입과 공통 유틸은 `common`에 둡니다.
+怨듯넻 ??낃낵 怨듯넻 ?좏떥? `common`???〓땲??
 
 ---
 
-## 6. AI가 기능을 구현할 때의 기준
+## 6. AI媛 湲곕뒫??援ы쁽???뚯쓽 湲곗?
 
-기능 하나를 구현할 때는 다음을 명확히 해야 합니다.
+湲곕뒫 ?섎굹瑜?援ы쁽???뚮뒗 ?ㅼ쓬??紐낇솗???댁빞 ?⑸땲??
 
 ```text
-어느 앱의 기능인가?
-어느 도메인 폴더에 들어가는가?
-상태 변경 command인가?
-idempotency key가 필요한가?
-ledger 영향이 있는가?
-외부 앱 API 호출이 있는가?
-outbox event가 필요한가?
-external message log가 필요한가?
-실패 상태와 재처리 경로가 있는가?
-민원/대사/감사와 연결되는가?
+?대뒓 ?깆쓽 湲곕뒫?멸??
+?대뒓 ?꾨찓???대뜑???ㅼ뼱媛?붽??
+?곹깭 蹂寃?command?멸??
+idempotency key媛 ?꾩슂?쒓??
+ledger ?곹뼢???덈뒗媛?
+?몃? ??API ?몄텧???덈뒗媛?
+outbox event媛 ?꾩슂?쒓??
+external message log媛 ?꾩슂?쒓??
+?ㅽ뙣 ?곹깭? ?ъ쿂由?寃쎈줈媛 ?덈뒗媛?
+誘쇱썝/???媛먯궗? ?곌껐?섎뒗媛?
 ```
 
 ---
 
-## 7. 네이밍 핵심
+## 7. ?ㅼ씠諛??듭떖
 
-Usecase 클래스는 역할이 드러나는 이름으로 만들고, 실행 메서드는 `execute`로 통일합니다.
+Usecase ?대옒?ㅻ뒗 ??븷???쒕윭?섎뒗 ?대쫫?쇰줈 留뚮뱾怨? ?ㅽ뻾 硫붿꽌?쒕뒗 `execute`濡??듭씪?⑸땲??
 
 Examples:
 
@@ -160,7 +160,7 @@ RegisterComplaintUseCase.execute(...)
 RetryOutboxEventUseCase.execute(...)
 ```
 
-Service는 도메인 규칙 또는 application orchestration을 보조합니다.
+Service???꾨찓??洹쒖튃 ?먮뒗 application orchestration??蹂댁“?⑸땲??
 
 ```text
 BondInventoryReservationService
@@ -171,37 +171,39 @@ SettlementRetryService
 
 ---
 
-## 8. 첫 구현 목표
+## 8. 泥?援ы쁽 紐⑺몴
 
-첫 번째 완성 시나리오는 다음입니다.
+泥?踰덉㎏ ?꾩꽦 ?쒕굹由ъ삤???ㅼ쓬?낅땲??
 
 ```text
-외부 증권사가 장외채권 매수 요청을 보낸다.
-PowerBase가 계좌와 재고를 검증한다.
-PowerBase가 pending ledger posting을 만든다.
-PowerBase가 KOFIA 보고와 KSD 결제 outbox를 만든다.
-KOFIA 보고는 성공한다.
-KSD 결제는 성공한다.
-PowerBase가 ledger를 finalize 한다.
-대사가 MATCHED 된다.
-고객이 민원을 넣는다.
-운영자가 admin timeline에서 거래, 원장, 보고, 결제, 대사, 감사로그를 확인한다.
-운영자가 답변을 작성하고 민원을 종료한다.
+?몃? 利앷텒?ш? ?μ쇅梨꾧텒 留ㅼ닔 ?붿껌??蹂대궦??
+STBase-App媛 怨꾩쥖? ?ш퀬瑜?寃利앺븳??
+STBase-App媛 pending ledger posting??留뚮뱺??
+STBase-App媛 KOFIA 蹂닿퀬? KSD 寃곗젣 outbox瑜?留뚮뱺??
+KOFIA 蹂닿퀬???깃났?쒕떎.
+KSD 寃곗젣???깃났?쒕떎.
+STBase-App媛 ledger瑜?finalize ?쒕떎.
+??ш? MATCHED ?쒕떎.
+怨좉컼??誘쇱썝???ｋ뒗??
+?댁쁺?먭? admin timeline?먯꽌 嫄곕옒, ?먯옣, 蹂닿퀬, 寃곗젣, ??? 媛먯궗濡쒓렇瑜??뺤씤?쒕떎.
+?댁쁺?먭? ?듬????묒꽦?섍퀬 誘쇱썝??醫낅즺?쒕떎.
 ```
 
-이 시나리오가 통과하기 전까지 주식, 선물, RP, ATS/SOR 구현을 시작하지 않습니다.
+???쒕굹由ъ삤媛 ?듦낵?섍린 ?꾧퉴吏 二쇱떇, ?좊Ъ, RP, ATS/SOR 援ы쁽???쒖옉?섏? ?딆뒿?덈떎.
 
 ---
 
 ## 9. Prompting Rule
 
-AI에게 작업을 맡길 때는 [PROMPTING_GUIDE.md](PROMPTING_GUIDE.md)의 템플릿을 사용합니다.
+AI?먭쾶 ?묒뾽??留↔만 ?뚮뒗 [PROMPTING_GUIDE.md](PROMPTING_GUIDE.md)???쒗뵆由우쓣 ?ъ슜?⑸땲??
 
-핵심 원칙:
+?듭떖 ?먯튃:
 
 ```text
-AI는 구조와 반복 코드를 만든다.
-문서는 정답 코드를 제공한다.
-사람은 핵심 usecase/service를 직접 따라 치며 익힌다.
-AI는 execute 내부 업무 로직을 임의로 창작하지 않는다.
+AI??援ъ“? 諛섎났 肄붾뱶瑜?留뚮뱺??
+臾몄꽌???뺣떟 肄붾뱶瑜??쒓났?쒕떎.
+?щ엺? ?듭떖 usecase/service瑜?吏곸젒 ?곕씪 移섎ŉ ?듯엺??
+AI??execute ?대? ?낅Т 濡쒖쭅???꾩쓽濡?李쎌옉?섏? ?딅뒗??
 ```
+
+

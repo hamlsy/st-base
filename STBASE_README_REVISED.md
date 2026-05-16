@@ -1,352 +1,352 @@
-# STBase - Securities Trade Base
+﻿# STBase - Securities Trade Base
 
-> **STBase(Securities Trade Base)**는 코스콤 PowerBase 구조를 모티브로 한  
-> **증권사 원장·주문·결제·대외기관 전문처리 모의 시스템**입니다.  
+> **STBase(Securities Trade Base)**??肄붿뒪肄?PowerBase 援ъ“瑜?紐⑦떚釉뚮줈 ?? 
+> **利앷텒???먯옣쨌二쇰Ц쨌寃곗젣쨌??멸린愿 ?꾨Ц泥섎━ 紐⑥쓽 ?쒖뒪??*?낅땲??  
 >
-> 이 프로젝트는 실제 한국거래소, 예탁결제원, 금융감독원, 금융투자협회, 코스콤 시스템과 연계하지 않습니다.  
-> 대신 각 유관 시스템의 역할을 내부 멀티모듈로 구현하여, 개인·기관·증권사 거래가  
-> 주문, 체결, 청산, 결제, 원장, 보고, 대사까지 어떻게 이어지는지 재현합니다.
+> ???꾨줈?앺듃???ㅼ젣 ?쒓뎅嫄곕옒?? ?덊긽寃곗젣?? 湲덉쑖媛먮룆?? 湲덉쑖?ъ옄?묓쉶, 肄붿뒪肄??쒖뒪?쒓낵 ?곌퀎?섏? ?딆뒿?덈떎.  
+> ???媛??좉? ?쒖뒪?쒖쓽 ??븷???대? 硫?곕え?덈줈 援ы쁽?섏뿬, 媛쒖씤쨌湲곌?쨌利앷텒??嫄곕옒媛  
+> 二쇰Ц, 泥닿껐, 泥?궛, 寃곗젣, ?먯옣, 蹂닿퀬, ??ш퉴吏 ?대뼸寃??댁뼱吏?붿? ?ы쁽?⑸땲??
 
 ---
 
-## 0. 핵심 전제
+## 0. ?듭떖 ?꾩젣
 
-STBase는 실거래 시스템이 아닙니다.
-
-```text
-실제 KRX 주문 전송                 ❌
-실제 예탁결제원 결제 지시           ❌
-실제 금융감독원 보고/공시 제출       ❌
-실제 금융투자협회 보고               ❌
-실제 코스콤 PowerBase/StockNet 연계  ❌
-실제 고객 자산 처리                 ❌
-실제 증권사 계좌 연동                ❌
-```
-
-대신 아래를 구현합니다.
+STBase???ㅺ굅???쒖뒪?쒖씠 ?꾨떃?덈떎.
 
 ```text
-PowerBase 구조의 증권사 업무계 시뮬레이션        ✅
-K-FRONT 형태의 전문 트레이딩/OMS 시뮬레이션       ✅
-STP-HUB 형태의 기관 주문 허브 시뮬레이션          ✅
-StockNet 형태의 전문망/주문·시세망 시뮬레이션     ✅
-EXTURE/KRX 형태의 시장시스템 시뮬레이션           ✅
-KSD 형태의 예탁·결제·권리관리 시뮬레이션          ✅
-KOFIA FreeBond/장외채권공시 시뮬레이션            ✅
-FSS 형태의 공시·감독·검사 시뮬레이션              ✅
+?ㅼ젣 KRX 二쇰Ц ?꾩넚                 ??
+?ㅼ젣 ?덊긽寃곗젣??寃곗젣 吏??          ??
+?ㅼ젣 湲덉쑖媛먮룆??蹂닿퀬/怨듭떆 ?쒖텧       ??
+?ㅼ젣 湲덉쑖?ъ옄?묓쉶 蹂닿퀬               ??
+?ㅼ젣 肄붿뒪肄?PowerBase/StockNet ?곌퀎  ??
+?ㅼ젣 怨좉컼 ?먯궛 泥섎━                 ??
+?ㅼ젣 利앷텒??怨꾩쥖 ?곕룞                ??
 ```
 
-이 프로젝트의 목적은 **수익을 내는 트레이딩 프로그램**이 아닙니다.  
-목적은 **증권사 업무계가 거래를 어떻게 받아 원장, 결제, 보고, 대사까지 처리하는지 구현하는 것**입니다.
+????꾨옒瑜?援ы쁽?⑸땲??
+
+```text
+PowerBase 援ъ“??利앷텒???낅Т怨??쒕??덉씠??       ??
+K-FRONT ?뺥깭???꾨Ц ?몃젅?대뵫/OMS ?쒕??덉씠??      ??
+STP-HUB ?뺥깭??湲곌? 二쇰Ц ?덈툕 ?쒕??덉씠??         ??
+StockNet ?뺥깭???꾨Ц留?二쇰Ц쨌?쒖꽭留??쒕??덉씠??    ??
+EXTURE/KRX ?뺥깭???쒖옣?쒖뒪???쒕??덉씠??          ??
+KSD ?뺥깭???덊긽쨌寃곗젣쨌沅뚮━愿由??쒕??덉씠??         ??
+KOFIA FreeBond/?μ쇅梨꾧텒怨듭떆 ?쒕??덉씠??           ??
+FSS ?뺥깭??怨듭떆쨌媛먮룆쨌寃???쒕??덉씠??             ??
+```
+
+???꾨줈?앺듃??紐⑹쟻? **?섏씡???대뒗 ?몃젅?대뵫 ?꾨줈洹몃옩**???꾨떃?덈떎.  
+紐⑹쟻? **利앷텒???낅Т怨꾧? 嫄곕옒瑜??대뼸寃?諛쏆븘 ?먯옣, 寃곗젣, 蹂닿퀬, ??ш퉴吏 泥섎━?섎뒗吏 援ы쁽?섎뒗 寃?*?낅땲??
 
 ---
 
-## 1. 공식 자료 반영 기준
+## 1. 怨듭떇 ?먮즺 諛섏쁺 湲곗?
 
-STBase는 다음 공식 자료의 역할 구분을 참고하여 설계합니다.
+STBase???ㅼ쓬 怨듭떇 ?먮즺????븷 援щ텇??李멸퀬?섏뿬 ?ㅺ퀎?⑸땲??
 
-- 코스콤 PowerBase: 금융투자회사 기본업무, 자산관리, 투자정보, 글로벌 트레이딩 등을 지원하는 종합 아웃소싱 서비스
-- 코스콤 시장시스템/EXTURE+: KRX 운영 시장의 매매체결, 체결결과 통보, 청산결제, 지수산출, CCP 등 거래 과정을 전산 처리
-- 코스콤 STP-HUB: 자산운용사·기관투자가와 증권·선물사 간 주문, 체결, 매매보고서 등 메시지 교환 허브
-- 코스콤 K-FRONT: 법인영업 및 상품매매용 주문처리시스템, 저지연 FIX, 알고리즘 트레이딩, 전문 트레이더용 Front 시스템
-- 코스콤 증권망/StockNet: 거래소, 증권사, 유관기관을 연결하는 주문망·시세망 성격의 통신 인프라
-- 코스콤 FreeBond/장외채권공시: 장외채권 거래 전용 시스템, 트레이딩보드, 전용메신저, 호가·매매정보 공시
-- 코스콤 BOND CHECK/CHECK Expert+: 장내·장외 채권 가격, 발행정보, 수익률, 단가 계산기 등 시장정보 서비스
+- 肄붿뒪肄?PowerBase: 湲덉쑖?ъ옄?뚯궗 湲곕낯?낅Т, ?먯궛愿由? ?ъ옄?뺣낫, 湲濡쒕쾶 ?몃젅?대뵫 ?깆쓣 吏?먰븯??醫낇빀 ?꾩썐?뚯떛 ?쒕퉬??
+- 肄붿뒪肄??쒖옣?쒖뒪??EXTURE+: KRX ?댁쁺 ?쒖옣??留ㅻℓ泥닿껐, 泥닿껐寃곌낵 ?듬낫, 泥?궛寃곗젣, 吏?섏궛異? CCP ??嫄곕옒 怨쇱젙???꾩궛 泥섎━
+- 肄붿뒪肄?STP-HUB: ?먯궛?댁슜??룰린愿?ъ옄媛? 利앷텒쨌?좊Ъ??媛?二쇰Ц, 泥닿껐, 留ㅻℓ蹂닿퀬????硫붿떆吏 援먰솚 ?덈툕
+- 肄붿뒪肄?K-FRONT: 踰뺤씤?곸뾽 諛??곹뭹留ㅻℓ??二쇰Ц泥섎━?쒖뒪?? ?吏??FIX, ?뚭퀬由ъ쬁 ?몃젅?대뵫, ?꾨Ц ?몃젅?대뜑??Front ?쒖뒪??
+- 肄붿뒪肄?利앷텒留?StockNet: 嫄곕옒?? 利앷텒?? ?좉?湲곌????곌껐?섎뒗 二쇰Ц留씲룹떆?몃쭩 ?깃꺽???듭떊 ?명봽??
+- 肄붿뒪肄?FreeBond/?μ쇅梨꾧텒怨듭떆: ?μ쇅梨꾧텒 嫄곕옒 ?꾩슜 ?쒖뒪?? ?몃젅?대뵫蹂대뱶, ?꾩슜硫붿떊?, ?멸?쨌留ㅻℓ?뺣낫 怨듭떆
+- 肄붿뒪肄?BOND CHECK/CHECK Expert+: ?λ궡쨌?μ쇅 梨꾧텒 媛寃? 諛쒗뻾?뺣낫, ?섏씡瑜? ?④? 怨꾩궛湲????쒖옣?뺣낫 ?쒕퉬??
 
-STBase는 위 시스템들을 그대로 복제하지 않습니다.  
-각 시스템의 **업무상 책임과 데이터 흐름**을 학습용으로 재구성합니다.
+STBase?????쒖뒪?쒕뱾??洹몃?濡?蹂듭젣?섏? ?딆뒿?덈떎.  
+媛??쒖뒪?쒖쓽 **?낅Т??梨낆엫怨??곗씠???먮쫫**???숈뒿?⑹쑝濡??ш뎄?깊빀?덈떎.
 
 ---
 
-## 2. STBase의 정체성
+## 2. STBase???뺤껜??
 
-STBase는 단일 주문 서버가 아닙니다.
+STBase???⑥씪 二쇰Ц ?쒕쾭媛 ?꾨떃?덈떎.
 
-STBase는 다음 시스템들의 관계를 구현하는 **모의 자본시장 백엔드**입니다.
+STBase???ㅼ쓬 ?쒖뒪?쒕뱾??愿怨꾨? 援ы쁽?섎뒗 **紐⑥쓽 ?먮낯?쒖옣 諛깆뿏??*?낅땲??
 
 ```text
-[고객/기관/딜러/직원]
-        ↓
-[채널/프론트 시스템]
-        ↓
-[PowerBase-Sim: 증권사 업무계/고객원장]
-        ↓
-[StockNet-Sim: 주문·체결·시세·전문망]
-        ↓
-[EXTURE-Sim/KRX-Sim: 거래소 시장시스템]
-        ↓
-[KSD-Sim: 예탁·결제·권리관리]
-        ↓
-[보고/대사/감사/감독]
+[怨좉컼/湲곌?/?쒕윭/吏곸썝]
+        ??
+[梨꾨꼸/?꾨줎???쒖뒪??
+        ??
+[PowerBase-Sim: 利앷텒???낅Т怨?怨좉컼?먯옣]
+        ??
+[StockNet-Sim: 二쇰Ц쨌泥닿껐쨌?쒖꽭쨌?꾨Ц留?
+        ??
+[EXTURE-Sim/KRX-Sim: 嫄곕옒???쒖옣?쒖뒪??
+        ??
+[KSD-Sim: ?덊긽쨌寃곗젣쨌沅뚮━愿由?
+        ??
+[蹂닿퀬/???媛먯궗/媛먮룆]
 ```
 
-그리고 장외채권은 거래소 주문 흐름이 아니라 별도 흐름을 갖습니다.
+洹몃━怨??μ쇅梨꾧텒? 嫄곕옒??二쇰Ц ?먮쫫???꾨땲??蹂꾨룄 ?먮쫫??媛뽰뒿?덈떎.
 
 ```text
-[딜러/기관/증권사]
-        ↓
-[K-FRONT-Sim 또는 FreeBond-Sim]
-        ↓
+[?쒕윭/湲곌?/利앷텒??
+        ??
+[K-FRONT-Sim ?먮뒗 FreeBond-Sim]
+        ??
 [OTC Trade Capture]
-        ↓
+        ??
 [PowerBase-Sim]
-        ↓
+        ??
 [KOFIA FreeBond/Disclosure-Sim]
-        ↓
+        ??
 [KSD-Sim]
-        ↓
-[원장/결제/대사]
+        ??
+[?먯옣/寃곗젣/???
 ```
 
 ---
 
-## 3. 전체 아키텍처
+## 3. ?꾩껜 ?꾪궎?띿쿂
 
 ```text
 stbase-root
-├── stbase-common
-├── stbase-auth
-│
-├── stbase-powerbase-core
-├── stbase-member
-├── stbase-account
-├── stbase-product
-├── stbase-ledger
-├── stbase-settlement
-├── stbase-reconciliation
-├── stbase-reporting
-├── stbase-risk-compliance
-├── stbase-batch
-│
-├── stbase-retail-channel-sim
-├── stbase-branch-terminal-sim
-├── stbase-kfront-sim
-├── stbase-stp-hub-sim
-│
-├── stbase-order-routing
-├── stbase-sor-sim
-├── stbase-stocknet-sim
-│
-├── stbase-exture-sim
-├── stbase-krx-marketdata-sim
-├── stbase-krx-clearing-sim
-│
-├── stbase-ksd-sim
-├── stbase-kofia-freebond-sim
-├── stbase-kofia-disclosure-sim
-├── stbase-fss-sim
-│
-├── stbase-market-info-sim
-├── stbase-bond-info-sim
-│
-├── stbase-admin
-├── stbase-ops-monitoring
-└── stbase-infra
+?쒋?? stbase-common
+?쒋?? stbase-auth
+??
+?쒋?? stbase-core
+?쒋?? stbase-member
+?쒋?? stbase-account
+?쒋?? stbase-product
+?쒋?? stbase-ledger
+?쒋?? stbase-settlement
+?쒋?? stbase-reconciliation
+?쒋?? stbase-reporting
+?쒋?? stbase-risk-compliance
+?쒋?? stbase-batch
+??
+?쒋?? stbase-retail-channel-sim
+?쒋?? stbase-branch-terminal-sim
+?쒋?? stbase-kfront-sim
+?쒋?? stbase-stp-hub-sim
+??
+?쒋?? stbase-order-routing
+?쒋?? stbase-sor-sim
+?쒋?? stbase-stocknet-sim
+??
+?쒋?? stbase-exture-sim
+?쒋?? stbase-krx-marketdata-sim
+?쒋?? stbase-krx-clearing-sim
+??
+?쒋?? stbase-ksd-sim
+?쒋?? stbase-kofia-freebond-sim
+?쒋?? stbase-kofia-disclosure-sim
+?쒋?? stbase-fss-sim
+??
+?쒋?? stbase-market-info-sim
+?쒋?? stbase-bond-info-sim
+??
+?쒋?? stbase-admin
+?쒋?? stbase-ops-monitoring
+?붴?? stbase-infra
 ```
 
 ---
 
-## 4. 핵심 모듈 설명
+## 4. ?듭떖 紐⑤뱢 ?ㅻ챸
 
 ---
 
-## 4.1 stbase-powerbase-core
+## 4.1 stbase-core
 
-증권사 업무계의 중심입니다.
+利앷텒???낅Т怨꾩쓽 以묒떖?낅땲??
 
-이 모듈은 “시장”이 아닙니다.  
-이 모듈은 “거래소”도 아닙니다.  
-이 모듈은 “예탁결제원”도 아닙니다.
+??紐⑤뱢? ?쒖떆?β앹씠 ?꾨떃?덈떎.  
+??紐⑤뱢? ?쒓굅?섏냼?앸룄 ?꾨떃?덈떎.  
+??紐⑤뱢? ?쒖삁?곴껐?쒖썝?앸룄 ?꾨떃?덈떎.
 
-PowerBase-Sim은 다음 역할을 담당합니다.
+PowerBase-Sim? ?ㅼ쓬 ??븷???대떦?⑸땲??
 
 ```text
-고객 계좌 관리
-고객 원장 관리
-현금/증권 잔고 관리
-주문 접수 결과 반영
-체결 결과 반영
-장외거래 입력 결과 반영
-결제 예정 생성
-결제 결과 반영
-영업점/채널 요청 처리
-대외기관 전문 송수신 기록
-일마감
-대사
-감사로그
+怨좉컼 怨꾩쥖 愿由?
+怨좉컼 ?먯옣 愿由?
+?꾧툑/利앷텒 ?붽퀬 愿由?
+二쇰Ц ?묒닔 寃곌낵 諛섏쁺
+泥닿껐 寃곌낵 諛섏쁺
+?μ쇅嫄곕옒 ?낅젰 寃곌낵 諛섏쁺
+寃곗젣 ?덉젙 ?앹꽦
+寃곗젣 寃곌낵 諛섏쁺
+?곸뾽??梨꾨꼸 ?붿껌 泥섎━
+??멸린愿 ?꾨Ц ?≪닔??湲곕줉
+?쇰쭏媛?
+???
+媛먯궗濡쒓렇
 ```
 
-PowerBase-Sim의 핵심 책임은 다음입니다.
+PowerBase-Sim???듭떖 梨낆엫? ?ㅼ쓬?낅땲??
 
-> “고객별 세부 원장과 증권사 내부 업무 상태를 정확하게 관리한다.”
+> ?쒓퀬媛앸퀎 ?몃? ?먯옣怨?利앷텒???대? ?낅Т ?곹깭瑜??뺥솗?섍쾶 愿由ы븳????
 
 ---
 
 ## 4.2 stbase-retail-channel-sim
 
-개인 고객 채널입니다.
+媛쒖씤 怨좉컼 梨꾨꼸?낅땲??
 
-예상 화면/API:
+?덉긽 ?붾㈃/API:
 
 ```text
-로그인
-계좌 조회
-잔고 조회
-주문 입력
-체결 조회
-채권 상품 조회
-RP 상품 조회
-거래내역 조회
+濡쒓렇??
+怨꾩쥖 議고쉶
+?붽퀬 議고쉶
+二쇰Ц ?낅젰
+泥닿껐 議고쉶
+梨꾧텒 ?곹뭹 議고쉶
+RP ?곹뭹 議고쉶
+嫄곕옒?댁뿭 議고쉶
 ```
 
-이 모듈은 실제 HTS/MTS를 만들기 위한 모듈이 아니라, 개인 고객 요청이 PowerBase-Sim으로 들어오는 흐름을 재현합니다.
+??紐⑤뱢? ?ㅼ젣 HTS/MTS瑜?留뚮뱾湲??꾪븳 紐⑤뱢???꾨땲?? 媛쒖씤 怨좉컼 ?붿껌??PowerBase-Sim?쇰줈 ?ㅼ뼱?ㅻ뒗 ?먮쫫???ы쁽?⑸땲??
 
 ```text
-개인 고객
- → Retail Channel
- → PowerBase-Sim
- → Order Routing
- → StockNet-Sim
- → EXTURE-Sim
+媛쒖씤 怨좉컼
+ ??Retail Channel
+ ??PowerBase-Sim
+ ??Order Routing
+ ??StockNet-Sim
+ ??EXTURE-Sim
 ```
 
 ---
 
 ## 4.3 stbase-branch-terminal-sim
 
-영업점 직원/내부 직원용 단말 시뮬레이션입니다.
+?곸뾽??吏곸썝/?대? 吏곸썝???⑤쭚 ?쒕??덉씠?섏엯?덈떎.
 
-역할:
+??븷:
 
 ```text
-고객 계좌 조회
-고객 주문 대행 입력
-고객 적합성 확인
-채권 판매 처리
-입출금 요청
-거래내역 조회
-운영성 조회
+怨좉컼 怨꾩쥖 議고쉶
+怨좉컼 二쇰Ц ????낅젰
+怨좉컼 ?곹빀???뺤씤
+梨꾧텒 ?먮ℓ 泥섎━
+?낆텧湲??붿껌
+嫄곕옒?댁뿭 議고쉶
+?댁쁺??議고쉶
 ```
 
-개인 고객이 직접 주문하는 흐름과 직원이 대행 입력하는 흐름을 구분하기 위해 존재합니다.
+媛쒖씤 怨좉컼??吏곸젒 二쇰Ц?섎뒗 ?먮쫫怨?吏곸썝??????낅젰?섎뒗 ?먮쫫??援щ텇?섍린 ?꾪빐 議댁옱?⑸땲??
 
 ---
 
 ## 4.4 stbase-kfront-sim
 
-K-FRONT-Sim은 법인영업, 상품운용, 자기매매, 전문 트레이더용 Front/OMS 시뮬레이션입니다.
+K-FRONT-Sim? 踰뺤씤?곸뾽, ?곹뭹?댁슜, ?먭린留ㅻℓ, ?꾨Ц ?몃젅?대뜑??Front/OMS ?쒕??덉씠?섏엯?덈떎.
 
-역할:
+??븷:
 
 ```text
-법인영업 주문 입력
-상품운용 주문 입력
-자기매매 주문 입력
-바스켓 주문
-알고리즘 주문 시뮬레이션
-FIX 스타일 주문 메시지 생성
-시장데이터 기반 주문 의사결정 시뮬레이션
+踰뺤씤?곸뾽 二쇰Ц ?낅젰
+?곹뭹?댁슜 二쇰Ц ?낅젰
+?먭린留ㅻℓ 二쇰Ц ?낅젰
+諛붿뒪耳?二쇰Ц
+?뚭퀬由ъ쬁 二쇰Ц ?쒕??덉씠??
+FIX ?ㅽ???二쇰Ц 硫붿떆吏 ?앹꽦
+?쒖옣?곗씠??湲곕컲 二쇰Ц ?섏궗寃곗젙 ?쒕??덉씠??
 ```
 
-중요한 점:
+以묒슂????
 
 ```text
-K-FRONT-Sim은 고객 원장을 직접 수정하지 않는다.
-K-FRONT-Sim은 주문/거래 의사를 생성한다.
-원장 반영은 PowerBase-Sim이 담당한다.
+K-FRONT-Sim? 怨좉컼 ?먯옣??吏곸젒 ?섏젙?섏? ?딅뒗??
+K-FRONT-Sim? 二쇰Ц/嫄곕옒 ?섏궗瑜??앹꽦?쒕떎.
+?먯옣 諛섏쁺? PowerBase-Sim???대떦?쒕떎.
 ```
 
-흐름:
+?먮쫫:
 
 ```text
-트레이더
- → K-FRONT-Sim
- → Order Routing
- → StockNet-Sim
- → EXTURE-Sim
- → 체결 결과
- → PowerBase-Sim
+?몃젅?대뜑
+ ??K-FRONT-Sim
+ ??Order Routing
+ ??StockNet-Sim
+ ??EXTURE-Sim
+ ??泥닿껐 寃곌낵
+ ??PowerBase-Sim
 ```
 
 ---
 
 ## 4.5 stbase-stp-hub-sim
 
-STP-HUB-Sim은 자산운용사, 기관투자가 등 Buy-side와 증권사 Sell-side 간 메시지 허브입니다.
+STP-HUB-Sim? ?먯궛?댁슜?? 湲곌??ъ옄媛 ??Buy-side? 利앷텒??Sell-side 媛?硫붿떆吏 ?덈툕?낅땲??
 
-역할:
+??븷:
 
 ```text
-기관 주문 메시지 수신
-증권사로 주문 라우팅
-체결 결과 중계
-매매보고서 중계
-결제내역 확인 메시지 중계
-FIX 스타일 메시지 변환
-복수 증권사 연결 시뮬레이션
+湲곌? 二쇰Ц 硫붿떆吏 ?섏떊
+利앷텒?щ줈 二쇰Ц ?쇱슦??
+泥닿껐 寃곌낵 以묎퀎
+留ㅻℓ蹂닿퀬??以묎퀎
+寃곗젣?댁뿭 ?뺤씤 硫붿떆吏 以묎퀎
+FIX ?ㅽ???硫붿떆吏 蹂??
+蹂듭닔 利앷텒???곌껐 ?쒕??덉씠??
 ```
 
-STP-HUB-Sim은 개인 고객용 채널이 아닙니다.  
-기관과 증권사 사이의 주문/체결/보고 메시지 허브입니다.
+STP-HUB-Sim? 媛쒖씤 怨좉컼??梨꾨꼸???꾨떃?덈떎.  
+湲곌?怨?利앷텒???ъ씠??二쇰Ц/泥닿껐/蹂닿퀬 硫붿떆吏 ?덈툕?낅땲??
 
 ```text
-자산운용사
- → STP-HUB-Sim
- → 증권사 PowerBase/K-FRONT
- → StockNet-Sim
- → EXTURE-Sim
+?먯궛?댁슜??
+ ??STP-HUB-Sim
+ ??利앷텒??PowerBase/K-FRONT
+ ??StockNet-Sim
+ ??EXTURE-Sim
 ```
 
 ---
 
 ## 4.6 stbase-order-routing
 
-증권사 내부 주문 라우팅 모듈입니다.
+利앷텒???대? 二쇰Ц ?쇱슦??紐⑤뱢?낅땲??
 
-역할:
+??븷:
 
 ```text
-주문 유효성 검증
-시장 구분
-상품 구분
-주문 가능 시간 검증
-가용 현금/증권 hold 요청
-주문 목적지 결정
-StockNet-Sim 전송 요청
-주문 상태 관리
-중복 주문 방지
+二쇰Ц ?좏슚??寃利?
+?쒖옣 援щ텇
+?곹뭹 援щ텇
+二쇰Ц 媛???쒓컙 寃利?
+媛???꾧툑/利앷텒 hold ?붿껌
+二쇰Ц 紐⑹쟻吏 寃곗젙
+StockNet-Sim ?꾩넚 ?붿껌
+二쇰Ц ?곹깭 愿由?
+以묐났 二쇰Ц 諛⑹?
 ```
 
-장내거래 주문은 이 모듈을 통과합니다.
+?λ궡嫄곕옒 二쇰Ц? ??紐⑤뱢???듦낵?⑸땲??
 
 ```text
 Retail / Branch / K-FRONT / STP-HUB
- → Order Routing
- → StockNet-Sim
- → EXTURE-Sim
+ ??Order Routing
+ ??StockNet-Sim
+ ??EXTURE-Sim
 ```
 
 ---
 
 ## 4.7 stbase-sor-sim
 
-SOR-Sim은 복수거래시장 대응을 위한 Smart Order Routing 시뮬레이션입니다.
+SOR-Sim? 蹂듭닔嫄곕옒?쒖옣 ??묒쓣 ?꾪븳 Smart Order Routing ?쒕??덉씠?섏엯?덈떎.
 
-초기 구현에서는 KRX-Sim 하나만 사용할 수 있습니다.  
-하지만 설계는 복수 거래시장에 대비합니다.
+珥덇린 援ы쁽?먯꽌??KRX-Sim ?섎굹留??ъ슜?????덉뒿?덈떎.  
+?섏?留??ㅺ퀎??蹂듭닔 嫄곕옒?쒖옣???鍮꾪빀?덈떎.
 
-역할:
+??븷:
 
 ```text
-거래시장별 시세 비교
-최선집행 규칙 평가
-주문 목적지 선택
-장애 시 우선 거래시장 전송
-라우팅 근거 로그 저장
-최선집행 증적 생성
+嫄곕옒?쒖옣蹂??쒖꽭 鍮꾧탳
+理쒖꽑吏묓뻾 洹쒖튃 ?됯?
+二쇰Ц 紐⑹쟻吏 ?좏깮
+?μ븷 ???곗꽑 嫄곕옒?쒖옣 ?꾩넚
+?쇱슦??洹쇨굅 濡쒓렇 ???
+理쒖꽑吏묓뻾 利앹쟻 ?앹꽦
 ```
 
-예상 확장:
+?덉긽 ?뺤옣:
 
 ```text
 KRX-Sim
@@ -354,66 +354,66 @@ ATS-Sim
 DarkPool-Sim
 ```
 
-초기 단계에서는 다음처럼 단순화합니다.
+珥덇린 ?④퀎?먯꽌???ㅼ쓬泥섎읆 ?⑥닚?뷀빀?덈떎.
 
 ```text
-Phase 1: KRX-Sim 단일 라우팅
-Phase 2: KRX-Sim + ATS-Sim 복수시장
-Phase 3: SOR-Sim 최선집행 증적
+Phase 1: KRX-Sim ?⑥씪 ?쇱슦??
+Phase 2: KRX-Sim + ATS-Sim 蹂듭닔?쒖옣
+Phase 3: SOR-Sim 理쒖꽑吏묓뻾 利앹쟻
 ```
 
 ---
 
 ## 4.8 stbase-stocknet-sim
 
-StockNet-Sim은 증권망/주문망/시세망 성격의 전문 통신 계층입니다.
+StockNet-Sim? 利앷텒留?二쇰Ц留??쒖꽭留??깃꺽???꾨Ц ?듭떊 怨꾩링?낅땲??
 
-이 모듈이 존재해야 시스템이 훨씬 현실적입니다.
+??紐⑤뱢??議댁옱?댁빞 ?쒖뒪?쒖씠 ?⑥뵮 ?꾩떎?곸엯?덈떎.
 
-역할:
+??븷:
 
 ```text
-주문 전문 전달
-체결 전문 전달
-시세 전문 전달
-청산/결제 전문 전달
-유관기관 전문 전달
-전문 송수신 로그
-전문 재전송
-전문 지연 시뮬레이션
-전문 중복 수신 시뮬레이션
-순서 역전 시뮬레이션
-장애 복구 시뮬레이션
+二쇰Ц ?꾨Ц ?꾨떖
+泥닿껐 ?꾨Ц ?꾨떖
+?쒖꽭 ?꾨Ц ?꾨떖
+泥?궛/寃곗젣 ?꾨Ц ?꾨떖
+?좉?湲곌? ?꾨Ц ?꾨떖
+?꾨Ц ?≪닔??濡쒓렇
+?꾨Ц ?ъ쟾??
+?꾨Ц 吏???쒕??덉씠??
+?꾨Ц 以묐났 ?섏떊 ?쒕??덉씠??
+?쒖꽌 ??쟾 ?쒕??덉씠??
+?μ븷 蹂듦뎄 ?쒕??덉씠??
 ```
 
-중요한 원칙:
+以묒슂???먯튃:
 
 ```text
-PowerBase-Sim이 EXTURE-Sim DB를 직접 보면 안 된다.
-EXTURE-Sim이 PowerBase-Sim DB를 직접 수정하면 안 된다.
-모든 대외 흐름은 StockNet-Sim 또는 명시적 API를 통해 지나가야 한다.
+PowerBase-Sim??EXTURE-Sim DB瑜?吏곸젒 蹂대㈃ ???쒕떎.
+EXTURE-Sim??PowerBase-Sim DB瑜?吏곸젒 ?섏젙?섎㈃ ???쒕떎.
+紐⑤뱺 ????먮쫫? StockNet-Sim ?먮뒗 紐낆떆??API瑜??듯빐 吏?섍????쒕떎.
 ```
 
 ---
 
 ## 4.9 stbase-exture-sim
 
-EXTURE-Sim은 한국거래소 시장시스템을 모의 구현합니다.
+EXTURE-Sim? ?쒓뎅嫄곕옒???쒖옣?쒖뒪?쒖쓣 紐⑥쓽 援ы쁽?⑸땲??
 
-역할:
+??븷:
 
 ```text
-시장 개장/마감
-호가 접수
-호가장 관리
-매매체결
-체결결과 통보
-시장별 매매규칙 적용
-청산 데이터 생성
-시장감시 이벤트 생성
+?쒖옣 媛쒖옣/留덇컧
+?멸? ?묒닔
+?멸???愿由?
+留ㅻℓ泥닿껐
+泥닿껐寃곌낵 ?듬낫
+?쒖옣蹂?留ㅻℓ洹쒖튃 ?곸슜
+泥?궛 ?곗씠???앹꽦
+?쒖옣媛먯떆 ?대깽???앹꽦
 ```
 
-지원 시장 구분:
+吏???쒖옣 援щ텇:
 
 ```text
 KOSPI
@@ -426,254 +426,254 @@ BOND_GOVERNMENT
 REPO
 ```
 
-초기 구현 권장 순서:
+珥덇린 援ы쁽 沅뚯옣 ?쒖꽌:
 
 ```text
-1. KOSPI 단순 지정가 주문
-2. BOND_GENERAL 단순 주문
+1. KOSPI ?⑥닚 吏?뺢? 二쇰Ц
+2. BOND_GENERAL ?⑥닚 二쇰Ц
 3. BOND_GOVERNMENT
 4. REPO
 5. DERIVATIVES
 ```
 
-중요:
+以묒슂:
 
 ```text
-EXTURE-Sim은 고객 원장을 모른다.
-EXTURE-Sim은 회원/증권사 단위 주문과 체결을 처리한다.
-고객별 세부 반영은 PowerBase-Sim이 담당한다.
+EXTURE-Sim? 怨좉컼 ?먯옣??紐⑤Ⅸ??
+EXTURE-Sim? ?뚯썝/利앷텒???⑥쐞 二쇰Ц怨?泥닿껐??泥섎━?쒕떎.
+怨좉컼蹂??몃? 諛섏쁺? PowerBase-Sim???대떦?쒕떎.
 ```
 
 ---
 
 ## 4.10 stbase-krx-clearing-sim
 
-장내거래 체결 이후 청산 데이터를 생성하는 모듈입니다.
+?λ궡嫄곕옒 泥닿껐 ?댄썑 泥?궛 ?곗씠?곕? ?앹꽦?섎뒗 紐⑤뱢?낅땲??
 
-역할:
+??븷:
 
 ```text
-체결내역 집계
-회원별 매수/매도 정산
-차감 계산
-결제지시 생성
-KSD-Sim 결제 요청 데이터 생성
+泥닿껐?댁뿭 吏묎퀎
+?뚯썝蹂?留ㅼ닔/留ㅻ룄 ?뺤궛
+李④컧 怨꾩궛
+寃곗젣吏???앹꽦
+KSD-Sim 寃곗젣 ?붿껌 ?곗씠???앹꽦
 ```
 
-청산은 단순 체결과 다릅니다.
+泥?궛? ?⑥닚 泥닿껐怨??ㅻ쫭?덈떎.
 
 ```text
-체결: A가 B에게 샀다/팔았다
-청산: 회원별로 최종적으로 얼마를 주고받고 어떤 증권을 넘겨야 하는지 확정
-결제: 실제 증권/대금 이전
+泥닿껐: A媛 B?먭쾶 ????붿븯??
+泥?궛: ?뚯썝蹂꾨줈 理쒖쥌?곸쑝濡??쇰쭏瑜?二쇨퀬諛쏄퀬 ?대뼡 利앷텒???섍꺼???섎뒗吏 ?뺤젙
+寃곗젣: ?ㅼ젣 利앷텒/?湲??댁쟾
 ```
 
 ---
 
 ## 4.11 stbase-ksd-sim
 
-KSD-Sim은 예탁결제원 역할을 시뮬레이션합니다.
+KSD-Sim? ?덊긽寃곗젣????븷???쒕??덉씠?섑빀?덈떎.
 
-역할:
-
-```text
-증권 전자등록
-예탁계좌 관리
-회원/참가기관 단위 증권잔고 관리
-증권 계좌대체
-DVP 결제
-권리관리
-채권 이자 지급
-채권 만기 상환
-주식 배당 지급
-대사 자료 제공
-```
-
-중요한 설계 원칙:
+??븷:
 
 ```text
-KSD-Sim은 고객별 세부 잔고를 전부 관리하지 않아도 된다.
-KSD-Sim은 증권사/참가기관 단위 총량을 관리한다.
-PowerBase-Sim이 고객별 내부 잔고를 관리한다.
+利앷텒 ?꾩옄?깅줉
+?덊긽怨꾩쥖 愿由?
+?뚯썝/李멸?湲곌? ?⑥쐞 利앷텒?붽퀬 愿由?
+利앷텒 怨꾩쥖?泥?
+DVP 寃곗젣
+沅뚮━愿由?
+梨꾧텒 ?댁옄 吏湲?
+梨꾧텒 留뚭린 ?곹솚
+二쇱떇 諛곕떦 吏湲?
+????먮즺 ?쒓났
 ```
 
-예시:
+以묒슂???ㅺ퀎 ?먯튃:
+
+```text
+KSD-Sim? 怨좉컼蹂??몃? ?붽퀬瑜??꾨? 愿由ы븯吏 ?딆븘???쒕떎.
+KSD-Sim? 利앷텒??李멸?湲곌? ?⑥쐞 珥앸웾??愿由ы븳??
+PowerBase-Sim??怨좉컼蹂??대? ?붽퀬瑜?愿由ы븳??
+```
+
+?덉떆:
 
 ```text
 KSD-Sim:
-증권사 A 계좌에 국고채 KR000001 100억 보유
+利앷텒??A 怨꾩쥖??援?퀬梨?KR000001 100??蹂댁쑀
 
 PowerBase-Sim:
-고객1 1억
-고객2 3억
-고객3 5천만
-증권사 자기분 95.5억
+怨좉컼1 1??
+怨좉컼2 3??
+怨좉컼3 5泥쒕쭔
+利앷텒???먭린遺?95.5??
 
-대사:
-KSD-Sim 증권사 A 총량 = PowerBase-Sim 고객별 합산 + 자기분
+???
+KSD-Sim 利앷텒??A 珥앸웾 = PowerBase-Sim 怨좉컼蹂??⑹궛 + ?먭린遺?
 ```
 
 ---
 
 ## 4.12 stbase-kofia-freebond-sim
 
-FreeBond-Sim은 장외채권 거래 전용 시스템을 모의 구현합니다.
+FreeBond-Sim? ?μ쇅梨꾧텒 嫄곕옒 ?꾩슜 ?쒖뒪?쒖쓣 紐⑥쓽 援ы쁽?⑸땲??
 
-역할:
+??븷:
 
 ```text
-장외채권 호가 게시
-딜러 간 협의
-트레이딩보드
-전용메신저
-거래 조건 협의
-장외채권 체결 후보 생성
+?μ쇅梨꾧텒 ?멸? 寃뚯떆
+?쒕윭 媛??묒쓽
+?몃젅?대뵫蹂대뱶
+?꾩슜硫붿떊?
+嫄곕옒 議곌굔 ?묒쓽
+?μ쇅梨꾧텒 泥닿껐 ?꾨낫 ?앹꽦
 ```
 
-장외채권은 단순히 “거래소 주문”이 아닙니다.
+?μ쇅梨꾧텒? ?⑥닚???쒓굅?섏냼 二쇰Ц?앹씠 ?꾨떃?덈떎.
 
 ```text
-호가 제시
-상대방 탐색
-수익률/가격 협상
-수량 협상
-거래 조건 합의
-거래 입력
-보고
-결제
+?멸? ?쒖떆
+?곷?諛??먯깋
+?섏씡瑜?媛寃??묒긽
+?섎웾 ?묒긽
+嫄곕옒 議곌굔 ?⑹쓽
+嫄곕옒 ?낅젰
+蹂닿퀬
+寃곗젣
 ```
 
 ---
 
 ## 4.13 stbase-kofia-disclosure-sim
 
-장외채권 거래보고/공시 시뮬레이션입니다.
+?μ쇅梨꾧텒 嫄곕옒蹂닿퀬/怨듭떆 ?쒕??덉씠?섏엯?덈떎.
 
-역할:
+??븷:
 
 ```text
-장외채권 거래보고 수신
-보고 지연 감지
-호가/매매정보 공시
-수익률 통계
-거래량 통계
-보고 오류 반려
+?μ쇅梨꾧텒 嫄곕옒蹂닿퀬 ?섏떊
+蹂닿퀬 吏??媛먯?
+?멸?/留ㅻℓ?뺣낫 怨듭떆
+?섏씡瑜??듦퀎
+嫄곕옒???듦퀎
+蹂닿퀬 ?ㅻ쪟 諛섎젮
 ```
 
-PowerBase-Sim 또는 Trade Capture 모듈은 장외채권 거래 체결 후 이 모듈로 보고 이벤트를 보냅니다.
+PowerBase-Sim ?먮뒗 Trade Capture 紐⑤뱢? ?μ쇅梨꾧텒 嫄곕옒 泥닿껐 ????紐⑤뱢濡?蹂닿퀬 ?대깽?몃? 蹂대깄?덈떎.
 
 ---
 
 ## 4.14 stbase-fss-sim
 
-FSS-Sim은 금융감독원 역할을 시뮬레이션합니다.
+FSS-Sim? 湲덉쑖媛먮룆????븷???쒕??덉씠?섑빀?덈떎.
 
-중요:
+以묒슂:
 
 ```text
-FSS-Sim은 주문을 체결하지 않는다.
-FSS-Sim은 결제를 처리하지 않는다.
-FSS-Sim은 매 거래마다 실시간으로 끼어드는 시스템이 아니다.
+FSS-Sim? 二쇰Ц??泥닿껐?섏? ?딅뒗??
+FSS-Sim? 寃곗젣瑜?泥섎━?섏? ?딅뒗??
+FSS-Sim? 留?嫄곕옒留덈떎 ?ㅼ떆媛꾩쑝濡??쇱뼱?쒕뒗 ?쒖뒪?쒖씠 ?꾨땲??
 ```
 
-역할:
+??븷:
 
 ```text
-발행공시 접수
-증권신고서 시뮬레이션
-업무보고 접수
-검사 이벤트 생성
-투자자보호 점검
-불완전판매 의심 점검
-내부통제 위반 점검
-자료제출 요청
-제재 이벤트 시뮬레이션
+諛쒗뻾怨듭떆 ?묒닔
+利앷텒?좉퀬???쒕??덉씠??
+?낅Т蹂닿퀬 ?묒닔
+寃???대깽???앹꽦
+?ъ옄?먮낫???먭?
+遺덉셿?꾪뙋留??섏떖 ?먭?
+?대??듭젣 ?꾨컲 ?먭?
+?먮즺?쒖텧 ?붿껌
+?쒖옱 ?대깽???쒕??덉씠??
 ```
 
-거래 플로우와 감독 플로우를 분리합니다.
+嫄곕옒 ?뚮줈?곗? 媛먮룆 ?뚮줈?곕? 遺꾨━?⑸땲??
 
 ```text
-거래 플로우:
-고객/기관/증권사 → PowerBase-Sim → KRX/KOFIA → KSD → 원장/대사
+嫄곕옒 ?뚮줈??
+怨좉컼/湲곌?/利앷텒????PowerBase-Sim ??KRX/KOFIA ??KSD ???먯옣/???
 
-감독 플로우:
-PowerBase-Sim/증권사 → FSS-Sim
-발행회사/주관사 → FSS-Sim
-FSS-Sim → 검사/자료제출 요청
+媛먮룆 ?뚮줈??
+PowerBase-Sim/利앷텒????FSS-Sim
+諛쒗뻾?뚯궗/二쇨?????FSS-Sim
+FSS-Sim ??寃???먮즺?쒖텧 ?붿껌
 ```
 
 ---
 
 ## 4.15 stbase-market-info-sim
 
-시장정보 시스템입니다.
+?쒖옣?뺣낫 ?쒖뒪?쒖엯?덈떎.
 
-거래 시스템과 정보 시스템은 분리합니다.
+嫄곕옒 ?쒖뒪?쒓낵 ?뺣낫 ?쒖뒪?쒖? 遺꾨━?⑸땲??
 
-역할:
+??븷:
 
 ```text
-시세 조회
-종목 정보 조회
-채권 발행정보 조회
-채권 가격/수익률 정보 조회
-수익률 곡선 조회
-시장 통계
-뉴스 더미 데이터
-공시 더미 데이터
+?쒖꽭 議고쉶
+醫낅ぉ ?뺣낫 議고쉶
+梨꾧텒 諛쒗뻾?뺣낫 議고쉶
+梨꾧텒 媛寃??섏씡瑜??뺣낫 議고쉶
+?섏씡瑜?怨≪꽑 議고쉶
+?쒖옣 ?듦퀎
+?댁뒪 ?붾? ?곗씠??
+怨듭떆 ?붾? ?곗씠??
 ```
 
 ---
 
 ## 4.16 stbase-bond-info-sim
 
-BOND CHECK 성격의 채권정보 시뮬레이션입니다.
+BOND CHECK ?깃꺽??梨꾧텒?뺣낫 ?쒕??덉씠?섏엯?덈떎.
 
-역할:
+??븷:
 
 ```text
-장내채권 가격 정보
-장외채권 가격 정보
-채권 발행정보
-신용등급
-금리 정보
-채권 단가 계산
-경과이자 계산
-수익률 계산
-FRN 정보 확장
-스왑 정보 확장
+?λ궡梨꾧텒 媛寃??뺣낫
+?μ쇅梨꾧텒 媛寃??뺣낫
+梨꾧텒 諛쒗뻾?뺣낫
+?좎슜?깃툒
+湲덈━ ?뺣낫
+梨꾧텒 ?④? 怨꾩궛
+寃쎄낵?댁옄 怨꾩궛
+?섏씡瑜?怨꾩궛
+FRN ?뺣낫 ?뺤옣
+?ㅼ솑 ?뺣낫 ?뺤옣
 ```
 
-중요:
+以묒슂:
 
 ```text
-채권 가격 계산 로직을 주문 서비스 안에 흩뿌리지 않는다.
-채권 계산은 Bond Info/Calculation 영역으로 격리한다.
+梨꾧텒 媛寃?怨꾩궛 濡쒖쭅??二쇰Ц ?쒕퉬???덉뿉 ?⑸퓣由ъ? ?딅뒗??
+梨꾧텒 怨꾩궛? Bond Info/Calculation ?곸뿭?쇰줈 寃⑸━?쒕떎.
 ```
 
 ---
 
-## 5. 거래주체 구분
+## 5. 嫄곕옒二쇱껜 援щ텇
 
-STBase는 개인 고객만 다루지 않습니다.
+STBase??媛쒖씤 怨좉컼留??ㅻ（吏 ?딆뒿?덈떎.
 
 ```text
 INDIVIDUAL
-- 개인 고객
+- 媛쒖씤 怨좉컼
 
 INSTITUTION
-- 자산운용사
-- 보험사
-- 연기금
-- 은행
-- 일반 법인
+- ?먯궛?댁슜??
+- 蹂댄뿕??
+- ?곌린湲?
+- ???
+- ?쇰컲 踰뺤씤
 
 BROKER_DEALER
-- 증권사
-- 선물사
+- 利앷텒??
+- ?좊Ъ??
 
 HOUSE
-- 증권사 자기계정
+- 利앷텒???먭린怨꾩젙
 
 EXCHANGE_SIM
 - EXTURE/KRX-Sim
@@ -690,23 +690,23 @@ REGULATOR_SIM
 
 ---
 
-## 6. 상품 구분
+## 6. ?곹뭹 援щ텇
 
-지원 대상:
+吏?????
 
 ```text
-주식
-채권
-선물
+二쇱떇
+梨꾧텒
+?좊Ъ
 RP
 ETF
-장외채권
-장외주식 확장 가능
+?μ쇅梨꾧텒
+?μ쇅二쇱떇 ?뺤옣 媛??
 ```
 
 ---
 
-## 7. 시장 구분
+## 7. ?쒖옣 援щ텇
 
 ```text
 KOSPI
@@ -723,168 +723,168 @@ OTC_RP
 
 ---
 
-## 8. 핵심 업무 흐름
+## 8. ?듭떖 ?낅Т ?먮쫫
 
 ---
 
-## 8.1 개인 고객 장내 주식 매수
+## 8.1 媛쒖씤 怨좉컼 ?λ궡 二쇱떇 留ㅼ닔
 
 ```text
-[1] 개인 고객이 Retail Channel에서 주식 매수 주문
-[2] PowerBase-Sim이 계좌/현금/상품/시장 상태 검증
-[3] Ledger가 매수 예정금액 hold
-[4] Order Routing이 주문 목적지 결정
-[5] StockNet-Sim이 주문 전문 전달
-[6] EXTURE-Sim이 주문 접수
-[7] EXTURE-Sim Matching Engine이 체결
-[8] StockNet-Sim이 체결 전문 전달
-[9] PowerBase-Sim이 고객 주문/체결 상태 반영
-[10] Clearing-Sim이 청산 데이터 생성
-[11] Settlement가 KSD-Sim 결제지시 생성
-[12] 결제일에 KSD-Sim이 증권 계좌대체
-[13] PowerBase-Sim이 고객 현금/증권 원장 확정
-[14] Reconciliation이 KSD-Sim 총량과 고객별 내부 원장 대사
+[1] 媛쒖씤 怨좉컼??Retail Channel?먯꽌 二쇱떇 留ㅼ닔 二쇰Ц
+[2] PowerBase-Sim??怨꾩쥖/?꾧툑/?곹뭹/?쒖옣 ?곹깭 寃利?
+[3] Ledger媛 留ㅼ닔 ?덉젙湲덉븸 hold
+[4] Order Routing??二쇰Ц 紐⑹쟻吏 寃곗젙
+[5] StockNet-Sim??二쇰Ц ?꾨Ц ?꾨떖
+[6] EXTURE-Sim??二쇰Ц ?묒닔
+[7] EXTURE-Sim Matching Engine??泥닿껐
+[8] StockNet-Sim??泥닿껐 ?꾨Ц ?꾨떖
+[9] PowerBase-Sim??怨좉컼 二쇰Ц/泥닿껐 ?곹깭 諛섏쁺
+[10] Clearing-Sim??泥?궛 ?곗씠???앹꽦
+[11] Settlement媛 KSD-Sim 寃곗젣吏???앹꽦
+[12] 寃곗젣?쇱뿉 KSD-Sim??利앷텒 怨꾩쥖?泥?
+[13] PowerBase-Sim??怨좉컼 ?꾧툑/利앷텒 ?먯옣 ?뺤젙
+[14] Reconciliation??KSD-Sim 珥앸웾怨?怨좉컼蹂??대? ?먯옣 ???
 ```
 
 ---
 
-## 8.2 기관투자가 장내 주식 주문
+## 8.2 湲곌??ъ옄媛 ?λ궡 二쇱떇 二쇰Ц
 
 ```text
-[1] 자산운용사가 STP-HUB-Sim으로 주문 메시지 전송
-[2] STP-HUB-Sim이 증권사로 주문 라우팅
-[3] 증권사 K-FRONT-Sim 또는 PowerBase-Sim이 주문 수신
-[4] Order Routing이 시장/상품/한도 검증
-[5] StockNet-Sim을 통해 EXTURE-Sim으로 주문 전송
-[6] EXTURE-Sim에서 체결
-[7] 체결 결과가 StockNet-Sim을 통해 역방향 전달
-[8] STP-HUB-Sim이 기관에 체결결과/매매보고서 중계
-[9] PowerBase-Sim이 원장/결제/보고 처리
+[1] ?먯궛?댁슜?ш? STP-HUB-Sim?쇰줈 二쇰Ц 硫붿떆吏 ?꾩넚
+[2] STP-HUB-Sim??利앷텒?щ줈 二쇰Ц ?쇱슦??
+[3] 利앷텒??K-FRONT-Sim ?먮뒗 PowerBase-Sim??二쇰Ц ?섏떊
+[4] Order Routing???쒖옣/?곹뭹/?쒕룄 寃利?
+[5] StockNet-Sim???듯빐 EXTURE-Sim?쇰줈 二쇰Ц ?꾩넚
+[6] EXTURE-Sim?먯꽌 泥닿껐
+[7] 泥닿껐 寃곌낵媛 StockNet-Sim???듯빐 ??갑???꾨떖
+[8] STP-HUB-Sim??湲곌???泥닿껐寃곌낵/留ㅻℓ蹂닿퀬??以묎퀎
+[9] PowerBase-Sim???먯옣/寃곗젣/蹂닿퀬 泥섎━
 ```
 
 ---
 
-## 8.3 증권사 자기계정 장내 매매
+## 8.3 利앷텒???먭린怨꾩젙 ?λ궡 留ㅻℓ
 
 ```text
-[1] 트레이더가 K-FRONT-Sim에서 자기계정 주문 입력
-[2] K-FRONT-Sim이 주문 메시지 생성
-[3] Order Routing/SOR-Sim이 목적지 결정
-[4] StockNet-Sim이 EXTURE-Sim으로 주문 전달
-[5] EXTURE-Sim에서 체결
-[6] 체결결과 수신
-[7] PowerBase-Sim이 HOUSE 계정 원장 반영
-[8] 청산/결제/대사 처리
+[1] ?몃젅?대뜑媛 K-FRONT-Sim?먯꽌 ?먭린怨꾩젙 二쇰Ц ?낅젰
+[2] K-FRONT-Sim??二쇰Ц 硫붿떆吏 ?앹꽦
+[3] Order Routing/SOR-Sim??紐⑹쟻吏 寃곗젙
+[4] StockNet-Sim??EXTURE-Sim?쇰줈 二쇰Ц ?꾨떖
+[5] EXTURE-Sim?먯꽌 泥닿껐
+[6] 泥닿껐寃곌낵 ?섏떊
+[7] PowerBase-Sim??HOUSE 怨꾩젙 ?먯옣 諛섏쁺
+[8] 泥?궛/寃곗젣/???泥섎━
 ```
 
 ---
 
-## 8.4 개인 고객 장외채권 매수
+## 8.4 媛쒖씤 怨좉컼 ?μ쇅梨꾧텒 留ㅼ닔
 
 ```text
-[1] 증권사가 보유 채권을 판매상품으로 등록
-[2] 개인 고객이 Retail Channel에서 장외채권 매수 신청
-[3] PowerBase-Sim이 투자성향/상품위험도/현금 검증
-[4] 채권 재고를 조건부 차감
-[5] OTC Bond Trade 생성
-[6] 고객 현금 결제예정/채권 입고예정 원장 posting
-[7] KOFIA Disclosure-Sim에 장외채권 거래보고
-[8] 필요 시 KSD-Sim에 계좌대체/예탁잔고 반영
-[9] 결제 완료 후 고객 원장 확정
-[10] KSD-Sim 총량과 내부 고객별 잔고 대사
+[1] 利앷텒?ш? 蹂댁쑀 梨꾧텒???먮ℓ?곹뭹?쇰줈 ?깅줉
+[2] 媛쒖씤 怨좉컼??Retail Channel?먯꽌 ?μ쇅梨꾧텒 留ㅼ닔 ?좎껌
+[3] PowerBase-Sim???ъ옄?깊뼢/?곹뭹?꾪뿕???꾧툑 寃利?
+[4] 梨꾧텒 ?ш퀬瑜?議곌굔遺 李④컧
+[5] OTC Bond Trade ?앹꽦
+[6] 怨좉컼 ?꾧툑 寃곗젣?덉젙/梨꾧텒 ?낃퀬?덉젙 ?먯옣 posting
+[7] KOFIA Disclosure-Sim???μ쇅梨꾧텒 嫄곕옒蹂닿퀬
+[8] ?꾩슂 ??KSD-Sim??怨꾩쥖?泥??덊긽?붽퀬 諛섏쁺
+[9] 寃곗젣 ?꾨즺 ??怨좉컼 ?먯옣 ?뺤젙
+[10] KSD-Sim 珥앸웾怨??대? 怨좉컼蹂??붽퀬 ???
 ```
 
 ---
 
-## 8.5 증권사끼리 장외채권 거래
+## 8.5 利앷텒?щ겮由??μ쇅梨꾧텒 嫄곕옒
 
 ```text
-[1] 증권사 A 딜러와 증권사 B 딜러가 수익률/가격/수량 협의
-[2] FreeBond-Sim의 트레이딩보드/메신저를 통해 협의 기록 생성
-[3] 양쪽 증권사가 OTC Trade Capture 입력
-[4] PowerBase-Sim이 거래상대방/한도/잔고/결제일 검증
-[5] 거래 확정
-[6] KOFIA Disclosure-Sim에 장외채권 거래보고
-[7] KSD-Sim에 DVP 결제지시
-[8] A 증권사 계좌의 채권 감소
-[9] B 증권사 계좌의 채권 증가
-[10] B의 현금 감소, A의 현금 증가
-[11] 양쪽 PowerBase 원장 확정
-[12] 예탁잔고/내부 원장/보고내역 대사
+[1] 利앷텒??A ?쒕윭? 利앷텒??B ?쒕윭媛 ?섏씡瑜?媛寃??섎웾 ?묒쓽
+[2] FreeBond-Sim???몃젅?대뵫蹂대뱶/硫붿떊?瑜??듯빐 ?묒쓽 湲곕줉 ?앹꽦
+[3] ?묒そ 利앷텒?ш? OTC Trade Capture ?낅젰
+[4] PowerBase-Sim??嫄곕옒?곷?諛??쒕룄/?붽퀬/寃곗젣??寃利?
+[5] 嫄곕옒 ?뺤젙
+[6] KOFIA Disclosure-Sim???μ쇅梨꾧텒 嫄곕옒蹂닿퀬
+[7] KSD-Sim??DVP 寃곗젣吏??
+[8] A 利앷텒??怨꾩쥖??梨꾧텒 媛먯냼
+[9] B 利앷텒??怨꾩쥖??梨꾧텒 利앷?
+[10] B???꾧툑 媛먯냼, A???꾧툑 利앷?
+[11] ?묒そ PowerBase ?먯옣 ?뺤젙
+[12] ?덊긽?붽퀬/?대? ?먯옣/蹂닿퀬?댁뿭 ???
 ```
 
 ---
 
-## 8.6 채권 이자 지급
+## 8.6 梨꾧텒 ?댁옄 吏湲?
 
 ```text
-[1] Bond Info-Sim이 이자지급 스케줄 관리
-[2] 기준일 보유자 스냅샷 생성
-[3] KSD-Sim이 권리관리 이벤트 생성
-[4] PowerBase-Sim이 고객별 보유량 기준 이자 배분
-[5] 세금 계산
-[6] 고객 현금 원장 입금 posting
-[7] 이자 지급 결과 대사
+[1] Bond Info-Sim???댁옄吏湲??ㅼ?以?愿由?
+[2] 湲곗???蹂댁쑀???ㅻ깄???앹꽦
+[3] KSD-Sim??沅뚮━愿由??대깽???앹꽦
+[4] PowerBase-Sim??怨좉컼蹂?蹂댁쑀??湲곗? ?댁옄 諛곕텇
+[5] ?멸툑 怨꾩궛
+[6] 怨좉컼 ?꾧툑 ?먯옣 ?낃툑 posting
+[7] ?댁옄 吏湲?寃곌낵 ???
 ```
 
 ---
 
-## 8.7 채권 만기 상환
+## 8.7 梨꾧텒 留뚭린 ?곹솚
 
 ```text
-[1] 만기일 도래
-[2] KSD-Sim이 상환 이벤트 생성
-[3] PowerBase-Sim이 고객별 보유 수량 계산
-[4] 원금 상환금 계산
-[5] 채권 잔고 감소 posting
-[6] 현금 입금 posting
-[7] 채권 상태 REDEEMED 처리
-[8] 대사
+[1] 留뚭린???꾨옒
+[2] KSD-Sim???곹솚 ?대깽???앹꽦
+[3] PowerBase-Sim??怨좉컼蹂?蹂댁쑀 ?섎웾 怨꾩궛
+[4] ?먭툑 ?곹솚湲?怨꾩궛
+[5] 梨꾧텒 ?붽퀬 媛먯냼 posting
+[6] ?꾧툑 ?낃툑 posting
+[7] 梨꾧텒 ?곹깭 REDEEMED 泥섎━
+[8] ???
 ```
 
 ---
 
-## 8.8 선물 거래
+## 8.8 ?좊Ъ 嫄곕옒
 
 ```text
-[1] 기관 또는 자기계정이 K-FRONT-Sim에서 선물 주문 입력
-[2] Order Routing이 증거금 가능 여부 확인
-[3] StockNet-Sim을 통해 EXTURE-Sim DERIVATIVES 시장으로 주문 전송
-[4] 체결 발생
-[5] PowerBase-Sim이 미결제약정 생성
-[6] 초기증거금 hold
-[7] 일일정산 배치 실행
-[8] 평가손익/변동증거금 posting
-[9] 증거금 부족 시 margin call
+[1] 湲곌? ?먮뒗 ?먭린怨꾩젙??K-FRONT-Sim?먯꽌 ?좊Ъ 二쇰Ц ?낅젰
+[2] Order Routing??利앷굅湲?媛???щ? ?뺤씤
+[3] StockNet-Sim???듯빐 EXTURE-Sim DERIVATIVES ?쒖옣?쇰줈 二쇰Ц ?꾩넚
+[4] 泥닿껐 諛쒖깮
+[5] PowerBase-Sim??誘멸껐?쒖빟???앹꽦
+[6] 珥덇린利앷굅湲?hold
+[7] ?쇱씪?뺤궛 諛곗튂 ?ㅽ뻾
+[8] ?됯??먯씡/蹂?숈쬆嫄곌툑 posting
+[9] 利앷굅湲?遺議???margin call
 ```
 
 ---
 
-## 8.9 RP 거래
+## 8.9 RP 嫄곕옒
 
 ```text
-[1] RP 계약 생성
-[2] 기초 채권 담보 지정
-[3] start leg 실행
-    - 현금 이동
-    - 담보 채권 이전 또는 lock
-[4] repo rate 기준 이자 계산
-[5] end leg 실행
-    - 원금 + 이자 반환
-    - 담보 채권 반환
-[6] 원장 확정
-[7] 대사
+[1] RP 怨꾩빟 ?앹꽦
+[2] 湲곗큹 梨꾧텒 ?대낫 吏??
+[3] start leg ?ㅽ뻾
+    - ?꾧툑 ?대룞
+    - ?대낫 梨꾧텒 ?댁쟾 ?먮뒗 lock
+[4] repo rate 湲곗? ?댁옄 怨꾩궛
+[5] end leg ?ㅽ뻾
+    - ?먭툑 + ?댁옄 諛섑솚
+    - ?대낫 梨꾧텒 諛섑솚
+[6] ?먯옣 ?뺤젙
+[7] ???
 ```
 
 ---
 
-## 9. 원장 설계 원칙
+## 9. ?먯옣 ?ㅺ퀎 ?먯튃
 
-STBase의 핵심은 주문이 아니라 원장입니다.
+STBase???듭떖? 二쇰Ц???꾨땲???먯옣?낅땲??
 
-### 9.1 잔고 직접 수정 금지
+### 9.1 ?붽퀬 吏곸젒 ?섏젙 湲덉?
 
-나쁜 방식:
+?섏걶 諛⑹떇:
 
 ```sql
 UPDATE account_balance
@@ -892,27 +892,27 @@ SET cash = cash - 1000000
 WHERE account_id = 1;
 ```
 
-좋은 방식:
+醫뗭? 諛⑹떇:
 
 ```text
-ledger_journal 생성
-ledger_posting 생성
-balance projection 갱신
-audit_log 생성
+ledger_journal ?앹꽦
+ledger_posting ?앹꽦
+balance projection 媛깆떊
+audit_log ?앹꽦
 ```
 
-### 9.2 원장 posting 불변
+### 9.2 ?먯옣 posting 遺덈?
 
 ```text
-posting 생성 후 수정 금지
-posting 삭제 금지
-오류 발생 시 reversal posting 생성
-보정은 correction posting으로 처리
+posting ?앹꽦 ???섏젙 湲덉?
+posting ??젣 湲덉?
+?ㅻ쪟 諛쒖깮 ??reversal posting ?앹꽦
+蹂댁젙? correction posting?쇰줈 泥섎━
 ```
 
-### 9.3 Pending과 Settled 분리
+### 9.3 Pending怨?Settled 遺꾨━
 
-현금:
+?꾧툑:
 
 ```text
 settled_cash
@@ -922,7 +922,7 @@ pending_receivable
 pending_payable
 ```
 
-증권:
+利앷텒:
 
 ```text
 settled_quantity
@@ -934,25 +934,25 @@ pending_out_quantity
 
 ---
 
-## 10. 정합성 정책
+## 10. ?뺥빀???뺤콉
 
 ```text
-모든 상태변경 API는 idempotency key 필수
-모든 전문 송수신은 external_message_log 기록
-모든 모듈 간 상태 전이는 correlationId 사용
-외부기관 시뮬레이션 호출은 outbox 기반
-분산 트랜잭션 금지
-Saga 상태 명시
-중복 체결 전문 수신 시 중복 반영 금지
-결제 실패는 숨기지 않고 상태로 남김
-대사 불일치는 자동 수정하지 않고 exception 처리
-운영자 수동 수정 금지
-운영자 보정은 별도 correction command로 처리
+紐⑤뱺 ?곹깭蹂寃?API??idempotency key ?꾩닔
+紐⑤뱺 ?꾨Ц ?≪닔?좎? external_message_log 湲곕줉
+紐⑤뱺 紐⑤뱢 媛??곹깭 ?꾩씠??correlationId ?ъ슜
+?몃?湲곌? ?쒕??덉씠???몄텧? outbox 湲곕컲
+遺꾩궛 ?몃옖??뀡 湲덉?
+Saga ?곹깭 紐낆떆
+以묐났 泥닿껐 ?꾨Ц ?섏떊 ??以묐났 諛섏쁺 湲덉?
+寃곗젣 ?ㅽ뙣???④린吏 ?딄퀬 ?곹깭濡??④?
+???遺덉씪移섎뒗 ?먮룞 ?섏젙?섏? ?딄퀬 exception 泥섎━
+?댁쁺???섎룞 ?섏젙 湲덉?
+?댁쁺??蹂댁젙? 蹂꾨룄 correction command濡?泥섎━
 ```
 
 ---
 
-## 11. 주요 테이블
+## 11. 二쇱슂 ?뚯씠釉?
 
 ```text
 members
@@ -998,42 +998,42 @@ ksd_book_entry_transfers
 
 ---
 
-## 12. 운영자 관점
+## 12. ?댁쁺??愿??
 
-운영자는 다음을 볼 수 있어야 합니다.
+?댁쁺?먮뒗 ?ㅼ쓬??蹂????덉뼱???⑸땲??
 
 ```text
-오늘 주문 건수
-오늘 체결 건수
-미체결 주문
-미결제 거래
-결제 실패
-전문 송수신 실패
-전문 중복 수신
+?ㅻ뒛 二쇰Ц 嫄댁닔
+?ㅻ뒛 泥닿껐 嫄댁닔
+誘몄껜寃?二쇰Ц
+誘멸껐??嫄곕옒
+寃곗젣 ?ㅽ뙣
+?꾨Ц ?≪닔???ㅽ뙣
+?꾨Ц 以묐났 ?섏떊
 outbox backlog
-KOFIA 보고 실패
-FSS 보고 실패
-KSD 결제 실패
-원장 불일치
-대사 exception
-배치 실패
-수동 재처리 대상
-감사로그
+KOFIA 蹂닿퀬 ?ㅽ뙣
+FSS 蹂닿퀬 ?ㅽ뙣
+KSD 寃곗젣 ?ㅽ뙣
+?먯옣 遺덉씪移?
+???exception
+諛곗튂 ?ㅽ뙣
+?섎룞 ?ъ쿂由????
+媛먯궗濡쒓렇
 ```
 
-운영자는 데이터를 직접 수정하면 안 됩니다.
+?댁쁺?먮뒗 ?곗씠?곕? 吏곸젒 ?섏젙?섎㈃ ???⑸땲??
 
 ```text
-직접 UPDATE 금지
-직접 DELETE 금지
-수동 재처리 command 허용
-보정 posting 허용
-모든 운영자 행위 audit log 필수
+吏곸젒 UPDATE 湲덉?
+吏곸젒 DELETE 湲덉?
+?섎룞 ?ъ쿂由?command ?덉슜
+蹂댁젙 posting ?덉슜
+紐⑤뱺 ?댁쁺???됱쐞 audit log ?꾩닔
 ```
 
 ---
 
-## 13. 기술 스택
+## 13. 湲곗닠 ?ㅽ깮
 
 ```text
 Java 17+
@@ -1051,7 +1051,7 @@ OpenAPI/Swagger
 Docker Compose
 ```
 
-선택 확장:
+?좏깮 ?뺤옣:
 
 ```text
 Redis
@@ -1062,7 +1062,7 @@ OpenSearch/ELK
 
 ---
 
-## 14. 개발 로드맵
+## 14. 媛쒕컻 濡쒕뱶留?
 
 ### Phase 1 - PowerBase Core
 
@@ -1075,7 +1075,7 @@ idempotency
 audit log
 ```
 
-### Phase 2 - 장외채권 MVP
+### Phase 2 - ?μ쇅梨꾧텒 MVP
 
 ```text
 bond master
@@ -1087,7 +1087,7 @@ settlement
 reconciliation
 ```
 
-### Phase 3 - EXTURE/KRX 장내 MVP
+### Phase 3 - EXTURE/KRX ?λ궡 MVP
 
 ```text
 market session
@@ -1099,7 +1099,7 @@ execution report
 clearing instruction
 ```
 
-### Phase 4 - 개인/기관/트레이더 채널 분리
+### Phase 4 - 媛쒖씤/湲곌?/?몃젅?대뜑 梨꾨꼸 遺꾨━
 
 ```text
 retail channel
@@ -1108,7 +1108,7 @@ K-FRONT simulation
 STP-HUB simulation
 ```
 
-### Phase 5 - 결제/권리관리 강화
+### Phase 5 - 寃곗젣/沅뚮━愿由?媛뺥솕
 
 ```text
 DVP
@@ -1118,7 +1118,7 @@ stock dividend
 corporate action
 ```
 
-### Phase 6 - 복수거래시장/SOR
+### Phase 6 - 蹂듭닔嫄곕옒?쒖옣/SOR
 
 ```text
 ATS-Sim
@@ -1128,7 +1128,7 @@ routing evidence
 market data comparison
 ```
 
-### Phase 7 - 선물/RP
+### Phase 7 - ?좊Ъ/RP
 
 ```text
 futures margin
@@ -1139,7 +1139,7 @@ RP end leg
 collateral valuation
 ```
 
-### Phase 8 - 운영/감독
+### Phase 8 - ?댁쁺/媛먮룆
 
 ```text
 FSS-Sim
@@ -1152,18 +1152,18 @@ manual retry
 
 ---
 
-## 15. 프로젝트 한 줄 요약
+## 15. ?꾨줈?앺듃 ??以??붿빟
 
-> **STBase는 PowerBase-Sim을 중심으로 K-FRONT-Sim, STP-HUB-Sim, StockNet-Sim, EXTURE-Sim, KSD-Sim, KOFIA FreeBond/Disclosure-Sim, FSS-Sim을 멀티모듈로 구현하여 개인·기관·증권사 거래의 주문, 체결, 청산, 결제, 원장, 보고, 대사 흐름을 재현하는 모의 증권업무 백엔드 시스템이다.**
+> **STBase??PowerBase-Sim??以묒떖?쇰줈 K-FRONT-Sim, STP-HUB-Sim, StockNet-Sim, EXTURE-Sim, KSD-Sim, KOFIA FreeBond/Disclosure-Sim, FSS-Sim??硫?곕え?덈줈 援ы쁽?섏뿬 媛쒖씤쨌湲곌?쨌利앷텒??嫄곕옒??二쇰Ц, 泥닿껐, 泥?궛, 寃곗젣, ?먯옣, 蹂닿퀬, ????먮쫫???ы쁽?섎뒗 紐⑥쓽 利앷텒?낅Т 諛깆뿏???쒖뒪?쒖씠??**
 
 ---
 
-## 16. 공식 자료 참고
+## 16. 怨듭떇 ?먮즺 李멸퀬
 
 - Koscom PowerBase  
   https://www.koscom.co.kr/portal/main/contents.do?menuNo=200307
 
-- Koscom 시장시스템 개발운용 / EXTURE+  
+- Koscom ?쒖옣?쒖뒪??媛쒕컻?댁슜 / EXTURE+  
   https://www.koscom.co.kr/portal/main/contents.do?menuNo=200295
 
 - Koscom STP-HUB  
@@ -1178,5 +1178,6 @@ manual retry
 - Koscom BOND CHECK  
   https://m.koscom.co.kr/mobile/bbs/B0000064/view.do?menuNo=400107&nttId=30036
 
-- Koscom SOR / 복수거래시장 대응  
+- Koscom SOR / 蹂듭닔嫄곕옒?쒖옣 ??? 
   https://www.koscom.co.kr/portal/bbs/B0000064/view.do?nttId=30042
+

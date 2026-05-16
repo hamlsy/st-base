@@ -1,6 +1,6 @@
-# STBase Project Skill
+﻿# STBase Project Skill
 
-> 이 문서는 STBase 프로젝트에서 AI가 따라야 할 기술 스킬과 구현 취향을 고정합니다.
+> ??臾몄꽌??STBase ?꾨줈?앺듃?먯꽌 AI媛 ?곕씪????湲곗닠 ?ㅽ궗怨?援ы쁽 痍⑦뼢??怨좎젙?⑸땲??
 
 ---
 
@@ -22,9 +22,9 @@ Testing: JUnit 5 + Testcontainers
 
 ## 2. Architectural Style
 
-STBase는 DDD 구조를 사용합니다.
+STBase??DDD 援ъ“瑜??ъ슜?⑸땲??
 
-도메인은 기술 폴더가 아니라 업무 경계 기준으로 나눕니다.
+?꾨찓?몄? 湲곗닠 ?대뜑媛 ?꾨땲???낅Т 寃쎄퀎 湲곗??쇰줈 ?섎닏?덈떎.
 
 Examples:
 
@@ -42,7 +42,7 @@ external-message
 audit
 ```
 
-각 도메인은 아래 구조를 따릅니다.
+媛??꾨찓?몄? ?꾨옒 援ъ“瑜??곕쫭?덈떎.
 
 ```text
 application/
@@ -66,9 +66,9 @@ presentation/
 
 ## 3. Application Layer Rule
 
-`application/usecase`에는 하나의 업무 목적을 대표하는 usecase 클래스를 둡니다.
+`application/usecase`?먮뒗 ?섎굹???낅Т 紐⑹쟻????쒗븯??usecase ?대옒?ㅻ? ?〓땲??
 
-Usecase 클래스명은 역할이 드러나야 합니다.
+Usecase ?대옒?ㅻ챸? ??븷???쒕윭?섏빞 ?⑸땲??
 
 ```text
 CreateOtcBondTradeUseCase
@@ -81,7 +81,7 @@ ResolveComplaintUseCase
 RetryOutboxEventUseCase
 ```
 
-Usecase public method 이름은 `execute`로 통일합니다.
+Usecase public method ?대쫫? `execute`濡??듭씪?⑸땲??
 
 ```java
 public OtcBondTradeResult execute(CreateOtcBondTradeCommand command) {
@@ -89,34 +89,34 @@ public OtcBondTradeResult execute(CreateOtcBondTradeCommand command) {
 }
 ```
 
-Usecase는 orchestration을 담당합니다.
+Usecase??orchestration???대떦?⑸땲??
 
 Allowed:
 
 ```text
-command validation 호출
-domain service 호출
-repository port 호출
-outbox event 생성
-audit log 기록 요청
+command validation ?몄텧
+domain service ?몄텧
+repository port ?몄텧
+outbox event ?앹꽦
+audit log 湲곕줉 ?붿껌
 transaction boundary
 ```
 
 Forbidden:
 
 ```text
-Controller에 비즈니스 로직 작성
-JPA Entity를 API 응답으로 직접 노출
-외부 앱 API를 transaction 안에서 직접 호출
-balance 직접 update
-ledger posting 수정/삭제
+Controller??鍮꾩쫰?덉뒪 濡쒖쭅 ?묒꽦
+JPA Entity瑜?API ?묐떟?쇰줈 吏곸젒 ?몄텧
+?몃? ??API瑜?transaction ?덉뿉??吏곸젒 ?몄텧
+balance 吏곸젒 update
+ledger posting ?섏젙/??젣
 ```
 
 ---
 
 ## 4. Application Service Rule
 
-`application/service`에는 usecase를 보조하는 application service를 둡니다.
+`application/service`?먮뒗 usecase瑜?蹂댁“?섎뒗 application service瑜??〓땲??
 
 Examples:
 
@@ -128,13 +128,13 @@ ExternalMessageLogService
 ComplaintEvidenceCollectService
 ```
 
-Application service는 특정 usecase 하나보다 재사용성이 있어야 합니다.
+Application service???뱀젙 usecase ?섎굹蹂대떎 ?ъ궗?⑹꽦???덉뼱???⑸땲??
 
 ---
 
 ## 5. Domain Layer Rule
 
-`domain`은 Spring에 의존하지 않습니다.
+`domain`? Spring???섏〈?섏? ?딆뒿?덈떎.
 
 Allowed:
 
@@ -161,7 +161,7 @@ RestTemplate
 Spring Transaction
 ```
 
-도메인 객체는 상태 변경 규칙을 스스로 보호합니다.
+?꾨찓??媛앹껜???곹깭 蹂寃?洹쒖튃???ㅼ뒪濡?蹂댄샇?⑸땲??
 
 Examples:
 
@@ -176,7 +176,7 @@ BondInventory cannot be reserved below zero.
 
 ## 6. Infrastructure Layer Rule
 
-`infrastructure`는 외부 기술 구현을 담당합니다.
+`infrastructure`???몃? 湲곗닠 援ы쁽???대떦?⑸땲??
 
 Examples:
 
@@ -189,7 +189,7 @@ MySQL mapping
 Configuration
 ```
 
-Repository 구현은 domain repository interface를 구현합니다.
+Repository 援ы쁽? domain repository interface瑜?援ы쁽?⑸땲??
 
 ```text
 domain/repository/OtcBondTradeRepository
@@ -197,22 +197,22 @@ infrastructure/persistence/JpaOtcBondTradeRepository
 infrastructure/persistence/OtcBondTradeRepositoryAdapter
 ```
 
-외부 앱 API 호출은 `infrastructure/client`에 둡니다.
+?몃? ??API ?몄텧? `infrastructure/client`???〓땲??
 
 ```text
 KsdClient
 KofiaClient
 FssClient
-PowerbaseClient
+StbaseClient
 ```
 
-단, 상태 변경 외부 호출은 usecase에서 직접 호출하지 않고 outbox relay를 통해 수행하는 것을 기본으로 합니다.
+?? ?곹깭 蹂寃??몃? ?몄텧? usecase?먯꽌 吏곸젒 ?몄텧?섏? ?딄퀬 outbox relay瑜??듯빐 ?섑뻾?섎뒗 寃껋쓣 湲곕낯?쇰줈 ?⑸땲??
 
 ---
 
 ## 7. Presentation Layer Rule
 
-`presentation`은 API 입출력을 담당합니다.
+`presentation`? API ?낆텧?μ쓣 ?대떦?⑸땲??
 
 Allowed:
 
@@ -227,19 +227,19 @@ API validation annotation
 Forbidden:
 
 ```text
-비즈니스 규칙
-원장 처리
-외부기관 호출 로직
-JPA Entity 직접 반환
+鍮꾩쫰?덉뒪 洹쒖튃
+?먯옣 泥섎━
+?몃?湲곌? ?몄텧 濡쒖쭅
+JPA Entity 吏곸젒 諛섑솚
 ```
 
-Controller는 request를 command로 변환하고 usecase의 `execute`를 호출합니다.
+Controller??request瑜?command濡?蹂?섑븯怨?usecase??`execute`瑜??몄텧?⑸땲??
 
 ---
 
 ## 8. Common Rule
 
-공통 타입은 `common`에 둡니다.
+怨듯넻 ??낆? `common`???〓땲??
 
 Allowed:
 
@@ -261,48 +261,48 @@ ClockProvider
 Forbidden:
 
 ```text
-특정 앱의 비즈니스 Entity
-특정 도메인의 Repository
-특정 API Client
-특정 화면/Controller DTO
+?뱀젙 ?깆쓽 鍮꾩쫰?덉뒪 Entity
+?뱀젙 ?꾨찓?몄쓽 Repository
+?뱀젙 API Client
+?뱀젙 ?붾㈃/Controller DTO
 ```
 
-`common`이 비대해지면 프로젝트 전체가 뭉개집니다.
+`common`??鍮꾨??댁?硫??꾨줈?앺듃 ?꾩껜媛 萸됯컻吏묐땲??
 
 ---
 
 ## 9. Persistence Rule
 
-Spring Data JPA와 MySQL을 사용합니다.
+Spring Data JPA? MySQL???ъ슜?⑸땲??
 
 Rules:
 
 ```text
-Money/Rate/Price는 BigDecimal 사용
-double/float 금지
-상태값은 enum 사용
-String status 금지
-LocalDate는 업무일/거래일/결제일에 사용
-OffsetDateTime은 이벤트 발생 시각에 사용
-동시성 보호가 필요한 aggregate는 @Version 사용
-재고 차감은 조건부 update 또는 낙관적 락 사용
+Money/Rate/Price??BigDecimal ?ъ슜
+double/float 湲덉?
+?곹깭媛믪? enum ?ъ슜
+String status 湲덉?
+LocalDate???낅Т??嫄곕옒??寃곗젣?쇱뿉 ?ъ슜
+OffsetDateTime? ?대깽??諛쒖깮 ?쒓컖???ъ슜
+?숈떆??蹂댄샇媛 ?꾩슂??aggregate??@Version ?ъ슜
+?ш퀬 李④컧? 議곌굔遺 update ?먮뒗 ?숆??????ъ슜
 ```
 
-Ledger 관련 금지:
+Ledger 愿??湲덉?:
 
 ```text
-ledger_postings update 금지
-ledger_postings delete 금지
-잔고 직접 보정 금지
-보정은 correction posting
-취소는 reversal posting
+ledger_postings update 湲덉?
+ledger_postings delete 湲덉?
+?붽퀬 吏곸젒 蹂댁젙 湲덉?
+蹂댁젙? correction posting
+痍⑥냼??reversal posting
 ```
 
 ---
 
 ## 10. API Communication Rule
 
-앱 간 통신은 공개 API로만 합니다.
+??媛??듭떊? 怨듦컻 API濡쒕쭔 ?⑸땲??
 
 Required headers:
 
@@ -312,17 +312,17 @@ X-Idempotency-Key
 X-Source-System
 ```
 
-모든 상태 변경 API는 idempotency key가 필요합니다.
+紐⑤뱺 ?곹깭 蹂寃?API??idempotency key媛 ?꾩슂?⑸땲??
 
-외부 앱 호출 기록은 `external_message_log`에 남깁니다.
+?몃? ???몄텧 湲곕줉? `external_message_log`???④퉩?덈떎.
 
-PowerBase에서 KSD/KOFIA/FSS로 나가는 호출은 기본적으로 outbox event를 먼저 저장한 뒤 relay가 전송합니다.
+PowerBase?먯꽌 KSD/KOFIA/FSS濡??섍????몄텧? 湲곕낯?곸쑝濡?outbox event瑜?癒쇱? ??ν븳 ??relay媛 ?꾩넚?⑸땲??
 
 ---
 
 ## 11. Test Rule
 
-테스트는 happy path보다 정합성 깨짐을 먼저 잡습니다.
+?뚯뒪?몃뒗 happy path蹂대떎 ?뺥빀??源⑥쭚??癒쇱? ?≪뒿?덈떎.
 
 Priority:
 
@@ -348,3 +348,4 @@ same_idempotency_key_creates_only_one_otc_bond_trade
 ksd_completion_callback_does_not_create_duplicate_ledger_posting
 operator_correction_creates_new_posting_instead_of_updating_existing_posting
 ```
+
